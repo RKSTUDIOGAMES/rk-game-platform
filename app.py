@@ -91,7 +91,7 @@ def valid_player_id(pid):
     return True
 
 
-current_power = None
+current_queue = []
 
 def init_db():
     conn = get_db()
@@ -586,14 +586,13 @@ def remove_player():
 @app.route("/get_power")
 def get_power():
 
-    global current_power
+    global power_queue
 
-    if current_power:
+    if len(power_queue) > 0:
 
-        temp = current_power
-        current_power = None
+        power = power_queue.pop(0)
 
-        return jsonify(temp)
+        return jsonify(power)
 
     return jsonify({
         "playerId": "",
