@@ -42,7 +42,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from email.mime.text import MIMEText
 otp_store ={}
 players = []
-instant_player = None
+instant_queue = []
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
@@ -539,7 +539,6 @@ def give_power():
     return jsonify({"status": "ok"})
 @app.route("/add_player", methods=["POST"])
 def add_player():
-    global instant_player
 
     if "player_id" not in session or "name" not in session:
         return jsonify({"status": "error"}), 401
@@ -547,6 +546,7 @@ def add_player():
     name = session["name"]
     channelId = session["player_id"].lower()
 
+    # already exists check
     for p in players:
         if p["channelId"] == channelId:
             return jsonify({"status": "exists"})
@@ -557,9 +557,11 @@ def add_player():
     }
 
     players.append(player)
-    instant_player = player
 
-    print("PLAYER ADDED FROM WEB:", player)
+    # 🔥 QUEUE ME ADD
+    instant_queue.append(player)
+
+    print("PLAYER ADDED:", player)
 
     return jsonify({"status": "ok"})
 # 🔥 GET ALL PLAYERS
@@ -572,14 +574,15 @@ def get_players():
 @app.route("/remove_player", methods=["POST"])
 def remove_player():
 
-    data = request.json
-    channelId = data.get("channelId").lower()
+    if "player_id" not in session:
+        return jsonify({"status":"error"}), 401
+
+    user_id = session["player_id"].lower()
 
     global players
-    players = [p for p in players if p["channelId"] != channelId]
+    players = [p for p in players if p["channelId"] != user_id]
 
     return jsonify({"status": "removed"})
-
 @app.route("/get_power")
 def get_power():
 
@@ -629,12 +632,13 @@ def verify_youtube():
 @app.route("/get_instant_player")
 def get_instant_player():
 
-    global instant_player
+    global instant_queue
 
-    if instant_player:
-        temp = instant_player
-        instant_player = None
-        return jsonify(temp)
+    if len(instant_queue) > 0:
+
+        player = instant_queue.pop(0)  # FIFO (first in first out)
+
+        return jsonify(player)
 
     return jsonify({
         "name": "",
