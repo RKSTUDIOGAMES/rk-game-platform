@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+    color:white;
+}
+
+/* header */
+.header{
+    padding:20px;
+    text-align:center;
+    border-bottom:1px solid rgba(0,255,200,0.3);
+}
+
+.header h2{
+    color:#00ffc3;
+    text-shadow:0 0 10px #00ffc3;
+}
+
+/* info panel */
+.info{
+    text-align:center;
+    margin:20px;
+}
+
+/* video */
+.video-container{
+    text-align:center;
+    margin-top:20px;
+}
+
+iframe{
+    width:90%;
+    max-width:800px;
+    height:400px;
+    border-radius:12px;
+    border:2px solid #00ffc3;
+    box-shadow:0 0 20px rgba(0,255,200,0.4);
+}
+
+/* button */
+.main-btn{
+    display:block;
+    margin:20px auto;
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    background:#00ffc3;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.main-btn:hover{
+    box-shadow:0 0 15px #00ffc3;
+}
+
+/* controller */
+.controller{
+    display:flex;
+    justify-content:center;
+    gap:80px;
+    margin-top:40px;
+    flex-wrap:wrap;
+}
+
+/* dpad */
+.dpad{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+}
+
+/* action buttons */
+.action{
+    display:grid;
+    grid-template-columns:60px 60px;
+    gap:12px;
+}
+
+/* buttons */
+.btn{
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    border:none;
+    font-size:22px;
+    cursor:pointer;
+    background:#111;
+    color:white;
+    transition:0.2s;
+    box-shadow:0 0 10px rgba(0,255,200,0.3);
+}
+
+.btn:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 15px #00ffc3;
+}
+
+/* colors */
+.green{background:#00ff88;}
+.red{background:#ff3b3b;}
+.blue{background:#3399ff;}
+.pink{background:#d633ff;}
+
+/* timers */
+#cooldownTimer{
+    margin-top:15px;
+    color:red;
+    font-size:18px;
+}
+
+#delayTimer{
+    color:yellow;
+    font-size:16px;
+}
+
+/* logout */
+.logout{
+    text-align:center;
+    margin:30px;
+}
+
+.logout a{
+    color:#d633ff;
+    text-decoration:none;
+    text-shadow:0 0 8px #d633ff;
+}
+
+.logout a:hover{
+    text-shadow:0 0 15px #ff66ff;
+}
+/*ads*/
+.layout{
+    display:flex;
+    justify-content:center;
+}
+
+/* main content */
+.main-content{
+    width:100%;
+    max-width:900px;
+}
+
+/* side ads */
+.side-ad{
+    width:160px;
+    min-height:400px;
+    margin:20px;
+    background:#111;
+    border-radius:10px;
+    text-align:center;
+    padding:10px;
+    border:1px solid rgba(0,255,200,0.3);
+}
+
+/* fixed position (pro look 🔥) */
+.left-ad{
+    position:sticky;
+    top:20px;
+}
+
+.right-ad{
+    position:sticky;
+    top:20px;
+}
+
+/* mobile me hide kar dena */
+@media(max-width:1000px){
+    .side-ad{
+        display:none;
+    }
+}
+</style>
+
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- LEFT AD -->
+    <div class="side-ad left-ad">
+        <p>Ad Space</p>
+        <!-- Yahan ad code -->
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- TERA PURA DASHBOARD YAHA SHIFT KAR -->
+
+<div class="header">
+<h2>🎮 Dashboard</h2>
+</div>
+
+<div class="info">
+Welcome <b>{{name}}</b><br>
+Player ID: <b>{{player_id}}</b>
+</div>
+
+<div class="video-container">
+<iframe src="https://www.youtube.com/embed/{{video_id}}" allowfullscreen></iframe>
+</div>
+
+<button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
+
+{% if controller_enable == 1 %}
+
+<div class="controller">
+
+<div class="dpad">
+<button onclick="sendCmd('up')" class="btn">▲</button>
+
+<div>
+<button onclick="sendCmd('left')" class="btn">◀</button>
+<button onclick="sendCmd('down')" class="btn">▼</button>
+<button onclick="sendCmd('right')" class="btn">▶</button>
+</div>
+</div>
+
+<div class="action">
+<button onclick="sendCmd('triangle')" class="btn green">▲</button>
+<button onclick="sendCmd('circle')" class="btn red">●</button>
+<button onclick="sendCmd('cross')" class="btn blue">✖</button>
+<button id="powerBtn" onclick="givePower()" class="btn pink">■</button>
+
+<div id="cooldownTimer"></div>
+<div id="delayTimer" style="display:none;"></div>
+</div>
+
+</div>
+
+{% endif %}
+
+<div class="logout">
+<a href="/logout" onclick="showAdBeforeLogout(event)">Logout</a>
+</div>
+
+<script>
+setTimeout(()=>{
+showAdPopup(()=>{})
+},10000)
+
+const STREAM_DELAY = 8
+const COOLDOWN = 20
+
+function givePower(){
+
+let btn = document.getElementById("powerBtn")
+
+btn.style.display = "none"
+
+fetch("/give_power",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body: JSON.stringify({
+
+playerId: "{{player_id}}",
+value: 1
+
+})
+
+})
+.then(r=>r.json())
+.then(data=>{
+
+console.log("POWER SENT", data)
+
+startDelayTimer()
+startCooldownTimer()
+
+})
+
+}
+
+function startDelayTimer(){
+
+let t = STREAM_DELAY
+
+let el = document.getElementById("delayTimer")
+
+el.style.display = "block"
+
+let interval = setInterval(()=>{
+
+el.innerText = "⚡ Power activating in " + t + "s"
+
+t--
+
+if(t < 0){
+
+clearInterval(interval)
+
+el.innerText = "⚡ Power Activated!"
+
+}
+
+},1000)
+
+}
+
+function startCooldownTimer(){
+
+let t = COOLDOWN
+
+let el = document.getElementById("cooldownTimer")
+let btn = document.getElementById("powerBtn")
+
+el.style.display = "block"
+
+let interval = setInterval(()=>{
+
+el.innerText = "Cooldown: " + t + "s"
+
+t--
+
+if(t < 0){
+
+clearInterval(interval)
+
+el.style.display = "none"
+
+btn.style.display = "inline-block"
+
+}
+
+},1000)
+
+}
+
+function addBall(){
+
+showAdPopup(() => {
+
+fetch("/add_player", {
+method: "POST",
+headers:{
+"Content-Type":"application/json"
+},
+body: JSON.stringify({
+name: "{{name}}",
+channelId: "{{player_id}}"
+})
+})
+.then(r => r.json())
+.then(data => {
+
+if(data.status === "exists"){
+alert("Already in game ❌")
+}else{
+alert("Ball Added ✅")
+}
+
+})
+
+})
+
+}
+function showAdPopup(callback){
+
+let ad = document.getElementById("adPopup")
+ad.style.display = "flex"
+
+setTimeout(()=>{
+    closeAd()
+    if(callback) callback()
+}, 3000)
+
+}
+
+function closeAd(){
+document.getElementById("adPopup").style.display = "none"
+}
+function showAdBeforeLogout(e){
+e.preventDefault()
+
+showAdPopup(()=>{
+window.location.href = "/logout"
+})
+
+}
+</script>
+</div>
+
+    <!-- RIGHT AD -->
+    <div class="side-ad right-ad">
+        <p>Ad Space</p>
+        <!-- Yahan ad code -->
+    </div>
+
+</div>
+<div id="adPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:9999;">
+    
+    <div style="background:#111; padding:20px; border-radius:10px; text-align:center;">
+        <p>🎁 Reward Loading...</p>
+        <p>Ad running... ⏳</p>
+        <button onclick="closeAd()">Skip</button>
+    </div>
+
+</div>
+</body>
+</html>

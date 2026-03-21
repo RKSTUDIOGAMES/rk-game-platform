@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Admin Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    background: rgba(0,0,0,0.7);
+    padding:30px;
+    border-radius:15px;
+    width:320px;
+    text-align:center;
+    border:1px solid rgba(0,255,200,0.3);
+    box-shadow:0 0 20px rgba(0,255,200,0.2);
+}
+
+h2{
+    color:#00ffc3;
+    text-shadow:0 0 10px #00ffc3;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #00ffc3;
+    background:#111;
+    color:#00ffc3;
+    margin-top:10px;
+}
+
+button{
+    margin-top:15px;
+    padding:10px;
+    width:100%;
+    border:none;
+    border-radius:8px;
+    background:#00ffc3;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    box-shadow:0 0 10px #00ffc3;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Admin Login 🔐</h2>
+
+<form method="post">
+<input name="email" placeholder="Enter Email" required>
+<input type="password" name="password" placeholder="Enter Password" required>
+
+<button type="submit">Login</button>
+</form>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Panel</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+    color:white;
+}
+
+/* container */
+.container{
+    padding:20px;
+    max-width:1100px;
+    margin:auto;
+}
+
+/* heading */
+h2, h3{
+    color:#00ffc3;
+    text-shadow:0 0 10px #00ffc3;
+}
+
+/* card sections */
+.card{
+    background: rgba(0,0,0,0.7);
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+    border:1px solid rgba(0,255,200,0.3);
+    box-shadow:0 0 20px rgba(0,255,200,0.2);
+}
+
+/* inputs */
+input{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #00ffc3;
+    background:#111;
+    color:#00ffc3;
+    margin-top:10px;
+    margin-bottom:10px;
+}
+
+/* buttons */
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    background:#00ffc3;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    box-shadow:0 0 10px #00ffc3;
+}
+
+/* special buttons */
+.danger{
+    background:#ff3b3b;
+    color:white;
+}
+
+.warning{
+    background:#ffaa00;
+    color:black;
+}
+
+/* table */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+    background: rgba(0,0,0,0.7);
+    border-radius:10px;
+    overflow:hidden;
+}
+
+th, td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+th{
+    background:#00ffc3;
+    color:black;
+}
+
+/* rows */
+tr:hover{
+    background: rgba(0,255,200,0.1);
+}
+
+/* blocked row */
+.blocked{
+    background:#ff4444 !important;
+}
+
+/* links */
+a{
+    color:#d633ff;
+    text-decoration:none;
+}
+
+a:hover{
+    text-shadow:0 0 8px #d633ff;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🎮 Admin Panel</h2>
+<div style="text-align:right; margin-bottom:15px;">
+    <a href="/admin_logout">
+        <button class="danger">Logout 🚪</button>
+    </a>
+</div>
+<div class="card">
+<form method="post">
+Enter YouTube Video ID<br>
+<input name="video_id" value="{{video_id}}">
+<button type="submit">Update Live Stream</button>
+</form>
+
+<br>
+Current Video ID: <b>{{video_id}}</b>
+</div>
+
+<div class="card">
+<h3>Enable Player Controller</h3>
+<form method="post">
+<input name="enable_id" placeholder="RK1234">
+<button type="submit">Enable Player</button>
+</form>
+</div>
+
+<div class="card">
+<h3>Disable Player Controller</h3>
+<form method="post">
+<input name="disable_id" placeholder="RK1234">
+<button type="submit" class="warning">Disable Player</button>
+</form>
+</div>
+
+<div class="card">
+<h3>Search Player</h3>
+<form method="post" action="/search_player">
+<input name="search_id" placeholder="RK1234">
+<button type="submit">Search</button>
+</form>
+</div>
+
+<div class="card">
+<form method="post">
+<button name="reset" value="1" class="danger">Reset All Players</button>
+</form>
+</div>
+
+<div class="card">
+<table>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Player ID</th>
+<th>Show Panel</th>
+<th>Controller</th>
+<th>Blocked</th>
+<th>Action</th>
+</tr>
+
+{% for u in users %}
+
+<tr class="{% if u[6] == 1 %}blocked{% endif %}">
+
+<td>{{u[0]}}</td>
+<td>{{u[1]}}</td>
+<td>{{u[2]}}</td>
+<td>{{u[4]}}</td>
+<td>{{u[5]}}</td>
+
+<td>
+<a href="/toggle_player/{{u[0]}}">
+{% if u[5] == 1 %}Hide{% else %}Show{% endif %}
+</a>
+</td>
+
+<td>{{u[6]}}</td>
+
+<td>
+{% if u[6] == 1 %}
+<a href="/unblock_player/{{u[0]}}">Unblock</a>
+{% else %}
+<a href="/block_player/{{u[0]}}">Block</a>
+{% endif %}
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+</div>
+
+</div>
+
+</body>
+</html>

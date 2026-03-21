@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Signup</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{
+    margin:0;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+}
+
+/* container */
+.container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    padding:20px;
+}
+
+/* 🔥 PUBG CARD */
+.card{
+    background: rgba(0,0,0,0.8);
+    border:1px solid rgba(0,255,200,0.3);
+    padding:35px;
+    border-radius:15px;
+    width:90%;
+    max-width:420px;
+    box-shadow: 0 0 25px rgba(0,255,200,0.4);
+}
+
+/* title */
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#00ffc3;
+    text-shadow: 0 0 10px #00ffc3;
+}
+
+/* inputs */
+input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    margin-bottom:12px;
+    outline:none;
+    background:#111;
+    color:#00ffc3;
+    border:1px solid #00ffc3;
+    font-size:14px;
+}
+
+/* placeholder */
+input::placeholder{
+    color:#aaa;
+}
+
+/* buttons */
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#00ffc3;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:8px;
+    transition:0.3s;
+}
+
+/* hover glow */
+button:hover{
+    background:#00e6b0;
+    box-shadow: 0 0 15px #00ffc3;
+}
+
+/* disabled */
+button:disabled{
+    background:#444;
+    color:#aaa;
+}
+
+/* status */
+#otp_status,
+#id_status,
+#yt_status,
+#pass_strength{
+    font-size:13px;
+}
+
+/* login link */
+.login-link{
+    text-align:center;
+    margin-top:15px;
+}
+
+.login-link a{
+    color:#00ffc3;
+    text-decoration:none;
+}
+
+.login-link a:hover{
+    text-shadow:0 0 8px #00ffc3;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="card">
+<h2>Signup</h2>  <form method="post">  Name<br>
+<input name="name" required><br><br>
+
+Email<br>
+<input type="email" id="email" name="email" placeholder="Enter Email" required><br><br>
+<input type="text" id="otp" placeholder="Enter OTP" maxlength="4" inputmode="numeric"><br><br>
+<button type="button" id="sendBtn" onclick="sendOTP()">Send OTP</button>
+<button type="button" id="verifyOtpBtn" onclick="verifyOTP()" style="display:none;">Verify OTP</button>
+
+<div id="otp_status" style="margin-top:10px;font-size:14px;"></div>  
+<br><br>  Player ID (Paste YouTube Handle)<br>
+
+<input id="player_id" name="player_id" readonly required>  <button type="button" onclick="pasteHandle()">Paste</button>
+
+<div id="id_status"></div>  
+<br><br>  <button type="button" onclick="verifyHandle()" id="verifyBtn" disabled>  
+VERIFY  
+</button>  <input type="hidden" id="verified" name="verified">  
+<div id="yt_status" style="margin-top:10px;"></div><br><br>  Password<br>
+<input type="password" id="password" name="password" onkeyup="checkPassword()" required>
+
+<div id="pass_strength" style="font-size:14px;margin-top:5px;"></div><br><br>  <button type="submit" id="signupBtn" disabled>Signup</button>
+
+</form>  <br>  <a href="/login">Already have account? Login</a>
+</div>
+</div>
+<script>  
+let isVerified = false;  
+let isPasswordStrong = false;  
+  
+function checkPassword(){  
+  
+let pass = document.getElementById("password").value  
+let strength = 0  
+  
+if(pass.length >= 8) strength++  
+  
+if(/[A-Z]/.test(pass)) strength++  
+  
+if(/[a-z]/.test(pass)) strength++  
+  
+if(/[0-9]/.test(pass)) strength++  
+  
+if(/[!@#$%^&*]/.test(pass)) strength++  
+  
+let msg = document.getElementById("pass_strength")  
+  
+if(strength <= 2){  
+  
+msg.innerHTML = "<span style='color:red'>Weak Password 🔴</span>"  
+isPasswordStrong = false;  
+}  
+else if(strength == 3 || strength == 4){  
+  
+msg.innerHTML = "<span style='color:orange'>Medium Password 🟡</span>"  
+isPasswordStrong = false;  
+}  
+else{  
+  
+msg.innerHTML = "<span style='color:green'>Strong Password 🟢</span>"  
+isPasswordStrong = true;  
+}  
+ updateSignupButton()  
+}  
+  
+  
+async function checkPlayerID(){  
+  
+  let pid = document.getElementById("player_id").value;  
+  
+  if(pid.length < 4){  
+    document.getElementById("id_status").innerHTML = "";  
+    return false;  
+  }  
+  
+  try {  
+    const res = await fetch("/check_player_id?player_id=" + pid);  
+    const data = await res.json();  
+  
+    if(data.available){  
+  
+      document.getElementById("id_status").innerHTML =  
+      "<span style='color:green'>✔ Player ID available</span>";  
+  
+      document.getElementById("verifyBtn").disabled = false;  
+  
+      return true;  
+  
+    } else {  
+  
+      document.getElementById("id_status").innerHTML =  
+      "<span style='color:red'>❌ Player ID already taken</span>";  
+  
+      document.getElementById("signupBtn").disabled = true;  
+      document.getElementById("verifyBtn").disabled = true;  
+  
+      return false;  
+    }  
+  
+  } catch {  
+    document.getElementById("id_status").innerHTML =  
+    "<span style='color:red'>⚠ Error checking ID</span>";  
+  
+    return false;  
+  }  
+}  
+let handle = "";  
+  
+async function pasteHandle() {  
+  
+  const text = await navigator.clipboard.readText();  
+  const match = text.match(/@[\w\d._]+/);  
+  
+  if (!match) {  
+    alert("Invalid YouTube handle!");  
+    return;  
+  }  
+  
+  handle = match[0].toLowerCase();  
+  isVerified = false;  
+  document.getElementById("verifyBtn").disabled = true;  
+  document.getElementById("player_id").value = handle;  
+  document.getElementById("signupBtn").disabled = true;  
+  document.getElementById("yt_status").innerHTML = "";  
+  
+  // 🔥 पहले check करो  
+  let available = await checkPlayerID();  
+  
+  // 🔥 अगर free है तभी verify करो  
+  if(available){  
+    verifyHandle();  
+  }  
+}  
+async function verifyHandle() {   
+if (!handle) {  
+  alert("Please paste your YouTube handle first!");  
+  return;  
+}  
+let idStatus = document.getElementById("id_status").textContent;  
+  
+if (idStatus.includes("already taken")) {  
+  document.getElementById("yt_status").innerHTML =  
+  "<span style='color:red'>❌ ID already taken</span>";  
+  return;  
+}  
+  document.getElementById("verifyBtn").disabled = true;  
+  document.getElementById("yt_status").innerHTML = "Checking...";  
+  
+  const res = await fetch("/verify_youtube", {  
+    method: "POST",  
+    headers: {"Content-Type": "application/json"},  
+    body: JSON.stringify({handle: handle})  
+  });  
+  
+  const data = await res.json();  
+  
+ if (data.status === "ok") {  
+   isVerified = true;  
+  
+  document.getElementById("yt_status").innerHTML =  
+  "<span style='color:green'>✅ Verified YouTube Handle</span>";  
+  
+} else {  
+  isVerified = false;  
+    document.getElementById("yt_status").innerHTML =  
+    "<span style='color:red'>❌ Invalid Handle</span>";  
+  }  
+  document.getElementById("verifyBtn").disabled = false;  
+ updateSignupButton()  
+}  
+  
+let isEmailVerified = false;  
+  
+function updateSignupButton(){  
+  
+  console.log(isVerified, isPasswordStrong, isEmailVerified);  
+  
+  if(isVerified && isPasswordStrong && isEmailVerified){  
+    document.getElementById("signupBtn").disabled = false;  
+  } else {  
+    document.getElementById("signupBtn").disabled = true;  
+  }  
+}  
+function sendOTP(){  
+  
+let email = document.getElementById("email").value  
+let statusDiv = document.getElementById("otp_status")  
+  
+// 🔵 Loading  
+statusDiv.innerHTML = "<span style='color:blue'>⏳ Sending OTP...</span>"  
+  
+fetch("/send_otp", {  
+method:"POST",  
+headers:{"Content-Type":"application/json"},  
+body: JSON.stringify({email: email})  
+})  
+.then(r=>r.json())  
+.then(data=>{  
+  
+if(data.status=="sent"){  
+  
+    statusDiv.innerHTML = "<span style='color:green'>📩 OTP sent to your email</span>"  
+    document.getElementById("sendBtn").disabled = true;  
+  
+}else{  
+  
+    statusDiv.innerHTML = "<span style='color:red'>❌ Invalid Email</span>"  
+}  
+  
+})  
+.catch(()=>{  
+    statusDiv.innerHTML = "<span style='color:red'>⚠ Server Error</span>"  
+})  
+  
+}  
+function verifyOTP(){  
+  
+let email = document.getElementById("email").value  
+let otp = document.getElementById("otp").value  
+let statusDiv = document.getElementById("otp_status")  
+  
+// 🔵 Loading  
+statusDiv.innerHTML = "<span style='color:blue'>⏳ Verifying OTP...</span>"  
+  
+fetch("/verify_otp", {  
+method:"POST",  
+headers:{"Content-Type":"application/json"},  
+body: JSON.stringify({email: email, otp: otp})  
+})  
+.then(r=>r.json())  
+.then(data=>{  
+  
+if(data.status=="ok"){  
+  
+    statusDiv.innerHTML = "<span style='color:green'>✅ OTP Verified</span>"  
+  
+    isEmailVerified = true;  
+    updateSignupButton();  
+  
+    document.getElementById("verified").value = "true"  
+  
+    document.getElementById("email").readOnly = true;  
+    document.getElementById("otp").disabled = true;  
+    document.getElementById("verifyOtpBtn").disabled = true;  
+  
+}else{  
+  
+    statusDiv.innerHTML = "<span style='color:red'>❌ Wrong OTP</span>"  
+}  
+  
+})  
+.catch(()=>{  
+    statusDiv.innerHTML = "<span style='color:red'>⚠ Server Error</span>"  
+})  
+  
+}  
+// 🔥 EMAIL CHANGE RESET (IMPORTANT)  
+document.getElementById("email").addEventListener("input", () => {  
+    isEmailVerified = false;  
+    document.getElementById("otp_status").innerHTML = "";  
+    document.getElementById("sendBtn").disabled = false;  
+    updateSignupButton(); // 🔥 MUST ADD  
+});  
+// 🔥 OTP AUTO VERIFY + 4 DIGIT LIMIT  
+document.getElementById("otp").addEventListener("input", function () {  
+  
+    // 🔢 sirf numbers allow  
+    this.value = this.value.replace(/[^0-9]/g, "");  
+  
+    // 🔥 agar 4 digit complete  
+    if (this.value.length === 4) {  
+        verifyOTP(); // auto call  
+    }  
+  
+});  
+</script>
+</body>
+</html>

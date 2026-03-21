@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Login</title>
+
+<!-- 🔥 FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+}
+
+/* container */
+.container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    padding:20px;
+}
+
+/* card */
+.card{
+    background: rgba(0,0,0,0.8);
+    border:1px solid rgba(0,255,200,0.3);
+    padding:35px;
+    border-radius:15px;
+    width:90%;
+    max-width:400px;
+    box-shadow: 0 0 25px rgba(0,255,200,0.4);
+}
+
+/* title */
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#00ffc3;
+    text-shadow: 0 0 10px #00ffc3;
+}
+
+/* inputs */
+input{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    margin-bottom:12px;
+    outline:none;
+    background:#111;
+    color:#00ffc3;
+    border:1px solid #00ffc3;
+    font-size:14px;
+}
+
+input::placeholder{
+    color:#aaa;
+}
+
+/* button */
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#00ffc3;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#00e6b0;
+    box-shadow: 0 0 15px #00ffc3;
+}
+
+/* 🔥 create account link backdrop */
+.login-link{
+    margin-top:20px;
+    text-align:center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    padding:12px 18px;
+    border-radius:12px;
+    display:inline-block;
+    box-shadow: 0 0 15px rgba(214, 51, 255, 0.4);
+    border:1px solid rgba(214, 51, 255, 0.6);
+}
+
+/* link text */
+.login-link a{
+    color:#d633ff;
+    font-weight:600;
+    text-decoration:none;
+    text-shadow: 0 0 5px #d633ff, 0 0 10px #d633ff;
+}
+
+.login-link a:hover{
+    color:#ff66ff;
+    text-shadow: 0 0 10px #ff66ff, 0 0 20px #ff66ff;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+<div class="card">
+
+<h2>Login</h2>
+
+<form method="post">
+
+Email<br>
+<input name="email" placeholder="Enter Email" required><br><br>
+
+Password<br>
+<input type="password" name="password" placeholder="Enter Password" required><br><br>
+
+<button type="submit">Login</button>
+
+</form>
+
+<div class="login-link">
+  <a href="/signup">Create Account</a>
+</div>
+
+</div>
+</div>
+
+</body>
+
+</html>

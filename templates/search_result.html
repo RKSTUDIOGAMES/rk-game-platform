@@ -1,0 +1,54 @@
+<h2>Player Result</h2>
+
+{% if user %}
+
+<table border="1">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Player ID</th>
+<th>Show Panel</th>
+<th>Controller</th>
+<th>Blocked</th>
+<th>Block Action</th>
+</tr>
+
+<tr {% if user[6] == 1 %} style="background:#ffcccc" {% endif %}>
+
+<td>{{user[0]}}</td>
+<td>{{user[1]}}</td>
+<td>{{user[2]}}</td>
+<td>{{user[4]}}</td>
+<td>{{user[5]}}</td>
+
+<td>
+<a href="/toggle_player/{{user[0]}}">
+{% if user[5] == 1 %}
+Hide
+{% else %}
+Show
+{% endif %}
+</a>
+</td>
+
+<td>{{user[6]}}</td>
+
+<td>
+{% if user[6] == 1 %}
+<a href="/unblock_player/{{user[0]}}">Unblock</a>
+{% else %}
+<a href="/block_player/{{user[0]}}">Block</a>
+{% endif %}
+</td>
+
+</tr>
+
+</table>
+
+{% else %}
+
+Player not found
+
+{% endif %}

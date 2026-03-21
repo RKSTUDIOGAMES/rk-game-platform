@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OTP Verify</title>
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#111;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+.card{
+    background:#1b1b1b;
+    padding:30px;
+    border-radius:12px;
+    width:90%;
+    max-width:360px;
+    text-align:center;
+}
+input{
+    width:100%;
+    padding:14px;
+    font-size:20px;
+    text-align:center;
+    border-radius:8px;
+    border:1px solid #00ffc3;
+    outline:none;
+    background:#111;
+    color:#00ffc3;
+    box-sizing:border-box;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Enter OTP</h2>
+    <input id="otp" type="text" maxlength="4" placeholder="Enter 4 digit OTP" required>
+</div>
+
+<script>
+const otpInput = document.getElementById("otp");
+
+otpInput.addEventListener("input", function () {
+    this.value = this.value.replace(/[^0-9]/g, "");
+
+    if (this.value.length === 4) {
+        fetch("/verify_login_otp_auto", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                otp: this.value
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "ok") {
+                window.location.href = "/dashboard";
+            } else {
+                alert("Wrong OTP ❌");
+                this.value = "";
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
