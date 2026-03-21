@@ -781,52 +781,13 @@ def admin_login():
         password = request.form["password"]
 
         if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
-
-            otp = str(random.randint(1000,9999))
-            otp_store[email] = {
-    "otp": otp,
-    "time": time.time()
-}
-            session["admin_temp"] = email
-
-            send_email_otp(email, otp)
-
-            return render_template("admin_otp.html")
-
+            session["admin"] = True
+            return redirect("/admin")
         else:
             return "Invalid Admin Credentials ❌"
 
     return render_template("admin_login.html")
-@app.route("/verify_admin_otp", methods=["POST"])
-def verify_admin_otp():
 
-    otp = request.form["otp"]
-    email = session.get("admin_temp")
-
-    if not email:
-        return "Session expired ❌"
-
-    otp_data = otp_store.get(email)
-
-    if not otp_data:
-        return "OTP not found ❌"
-
-    # ⏱️ expiry check
-    if time.time() - otp_data["time"] > 300:
-        otp_store.pop(email, None)
-        session.pop("admin_temp", None)
-        return "OTP Expired ⏱️ Please login again"
-
-    if otp_data["otp"] == otp:
-
-        session["admin"] = True
-
-        otp_store.pop(email, None)
-        session.pop("admin_temp", None)
-
-        return redirect("/admin")
-
-    return "Wrong OTP ❌"
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
