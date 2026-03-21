@@ -161,7 +161,9 @@ def check_player_id():
     else:
         return jsonify({"available": True})
 
-
+@app.route("/")
+def home():
+    return redirect("/login")
 @app.route("/signup", methods=["GET","POST"])
 def signup():
 
