@@ -9,6 +9,22 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 from functools import wraps
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+def send_email_otp(to_email, otp):
+    message = Mail(
+        from_email=os.environ.get("SENDER_EMAIL"),
+        to_emails=to_email,
+        subject="Your OTP Code",
+        html_content=f"<strong>Your OTP is: {otp}</strong>"
+    )
+
+    try:
+        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+        sg.send(message)
+    except Exception as e:
+        print(e)
 
 def get_db():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
