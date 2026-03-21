@@ -43,6 +43,7 @@ from email.mime.text import MIMEText
 otp_store ={}
 players = []
 instant_queue = []
+power_queue = []
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
@@ -91,7 +92,7 @@ def valid_player_id(pid):
     return True
 
 
-current_queue = []
+
 
 def init_db():
     conn = get_db()
@@ -510,7 +511,6 @@ POWER_COOLDOWN = 20
 
 @app.route("/give_power", methods=["POST"])
 def give_power():
-    global current_power
 
     if "player_id" not in session:
         return jsonify({"status": "error"}), 401
@@ -529,12 +529,13 @@ def give_power():
 
     last_power_times[player_id] = now
 
-   power_queue.append({
-    "playerId": player_id,
-    "value": 1
-})
+    # 🔥 QUEUE ADD (IMPORTANT)
+    power_queue.append({
+        "playerId": player_id,
+        "value": 1
+    })
 
-    print("POWER RECEIVED:", current_power)
+    print("POWER RECEIVED:", player_id)
 
     return jsonify({"status": "ok"})
 @app.route("/add_player", methods=["POST"])
