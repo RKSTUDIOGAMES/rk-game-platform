@@ -288,16 +288,7 @@ if (idStatus.includes("already taken")) {
   
 let isEmailVerified = false;  
   
-function updateSignupButton(){  
-  
-  console.log(isVerified, isPasswordStrong, isEmailVerified);  
-  
-  if(isVerified && isPasswordStrong && isEmailVerified){  
-    document.getElementById("signupBtn").disabled = false;  
-  } else {  
-    document.getElementById("signupBtn").disabled = true;  
-  }  
-}  
+
 function sendOTP(){  
   
 let email = document.getElementById("email").value  
@@ -330,54 +321,93 @@ if(data.status=="sent"){
 })  
   
 }  
+
+// 🔥 VERIFY OTP
 function verifyOTP(){  
-  
-let email = document.getElementById("email").value  
-let otp = document.getElementById("otp").value  
-let statusDiv = document.getElementById("otp_status")  
-  
-// 🔵 Loading  
-statusDiv.innerHTML = "<span style='color:blue'>⏳ Verifying OTP...</span>"  
-  
-fetch("/verify_otp", {  
-method:"POST",  
-headers:{"Content-Type":"application/json"},  
-body: JSON.stringify({email: email, otp: otp})  
-})  
-.then(r=>r.json())  
-.then(data=>{  
-  
-if(data.status=="ok"){  
-  
-    statusDiv.innerHTML = "<span style='color:green'>✅ OTP Verified</span>"  
-  
-    isEmailVerified = true;  
-    updateSignupButton();  
-  
-    document.getElementById("verified").value = "true"  
-  
-    document.getElementById("email").readOnly = true;  
-    document.getElementById("otp").disabled = true;  
-    document.getElementById("verifyOtpBtn").disabled = true;  
-  
-}else{  
-  
-    statusDiv.innerHTML = "<span style='color:red'>❌ Wrong OTP</span>"  
+
+    let email = document.getElementById("email").value.trim();
+    let otp = document.getElementById("otp").value.trim();
+    let statusDiv = document.getElementById("otp_status");  
+
+    // ❌ empty check
+    if(!email || !otp){
+        statusDiv.innerHTML = "<span style='color:red'>⚠ Enter Email & OTP</span>";
+        return;
+    }
+
+    // 🔵 Loading  
+    statusDiv.innerHTML = "<span style='color:blue'>⏳ Verifying OTP...</span>";  
+
+    fetch("/verify_otp", {  
+        method:"POST",  
+        headers:{"Content-Type":"application/json"},  
+        body: JSON.stringify({
+            email: email, 
+            otp: otp
+        })  
+    })  
+    .then(r=>r.json())  
+    .then(data=>{  
+
+        if(data.status=="ok"){  
+
+            statusDiv.innerHTML = "<span style='color:green'>✅ OTP Verified</span>";  
+
+            isEmailVerified = true;  
+            updateSignupButton();  
+
+            document.getElementById("verified").value = "true";  
+
+            // 🔒 lock fields
+            document.getElementById("email").readOnly = true;  
+            document.getElementById("otp").disabled = true;  
+            document.getElementById("verifyOtpBtn").disabled = true;  
+
+        } else if(data.status=="expired"){
+
+            statusDiv.innerHTML = "<span style='color:orange'>⏱ OTP Expired</span>";
+
+        } else {  
+
+            statusDiv.innerHTML = "<span style='color:red'>❌ Wrong OTP</span>";  
+        }  
+
+    })  
+    .catch(()=>{  
+        statusDiv.innerHTML = "<span style='color:red'>⚠ Server Error</span>";  
+    });  
+
 }  
-  
-})  
-.catch(()=>{  
-    statusDiv.innerHTML = "<span style='color:red'>⚠ Server Error</span>"  
-})  
-  
-}  
-// 🔥 EMAIL CHANGE RESET (IMPORTANT)  
+
+
+// 🔥 SIGNUP BUTTON CONTROL
+function updateSignupButton(){
+    let btn = document.getElementById("signupBtn");
+
+    if(isEmailVerified && isVerified && isPasswordStrong){
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    }else{
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+    }
+}
+
+
+// 🔥 EMAIL CHANGE RESET (VERY IMPORTANT)
 document.getElementById("email").addEventListener("input", () => {  
+
     isEmailVerified = false;  
+
     document.getElementById("otp_status").innerHTML = "";  
     document.getElementById("sendBtn").disabled = false;  
-    updateSignupButton(); // 🔥 MUST ADD  
-});  
+
+    // 🔓 unlock fields again
+    document.getElementById("otp").disabled = false;  
+    document.getElementById("verifyOtpBtn").disabled = false;  
+
+    updateSignupButton();  
+});
 // 🔥 OTP AUTO VERIFY + 4 DIGIT LIMIT  
 document.getElementById("otp").addEventListener("input", function () {  
   
