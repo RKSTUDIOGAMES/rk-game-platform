@@ -241,7 +241,24 @@ def signup():
         return redirect("/login")
 
     return render_template("signup.html")
+@app.route("/give_new_power", methods=["POST"])
+def give_new_power():
 
+    if "player_id" not in session:
+        return jsonify({"status": "error"}), 401
+
+    player_id = session["player_id"].lower()
+
+    power_queue.append({
+        "playerId": player_id,
+        "type": "force_field",
+        "radius": 120,
+        "duration": 6
+    })
+
+    print("🌀 FORCE FIELD SENT:", player_id)
+
+    return jsonify({"status": "ok"})
 @app.route("/login", methods=["GET","POST"])
 def login():
 
