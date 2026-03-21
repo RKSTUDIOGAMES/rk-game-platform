@@ -231,7 +231,7 @@ Player ID: <b>{{player_id}}</b>
 
 <div class="action">
 <button onclick="sendCmd('triangle')" class="btn green">▲</button>
-<button onclick="sendCmd('circle')" class="btn red">●</button>
+<button onclick="giveNewPower()" class="btn red">●</button>
 <button onclick="sendCmd('cross')" class="btn blue">✖</button>
 <button id="powerBtn" onclick="givePower()" class="btn pink">■</button>
 
@@ -403,6 +403,27 @@ e.preventDefault()
 
 showAdPopup(()=>{
 window.location.href = "/logout"
+})
+
+}
+function giveNewPower(){
+
+fetch("/give_new_power",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+}
+})
+.then(r=>r.json())
+.then(data=>{
+    if(data.status === "ok"){
+        console.log("NEW POWER SENT 🔥")
+    }else{
+        alert("Error ❌")
+    }
+})
+.catch(()=>{
+    alert("Server error ❌")
 })
 
 }
