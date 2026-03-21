@@ -505,45 +505,58 @@ def toggle_player(user_id):
     return redirect("/admin")
 
 
+last_power_times = {}
+POWER_COOLDOWN = 20
+
 @app.route("/give_power", methods=["POST"])
 def give_power():
-
     global current_power
 
-    data = request.json
+    if "player_id" not in session:
+        return jsonify({"status": "error"}), 401
 
-    current_power = data
+    player_id = session["player_id"].lower()
+    now = time.time()
+
+    last_time = last_power_times.get(player_id, 0)
+
+    if now - last_time < POWER_COOLDOWN:
+        remaining = int(POWER_COOLDOWN - (now - last_time))
+        return jsonify({
+            "status": "cooldown",
+            "remaining": remaining
+        })
+
+    last_power_times[player_id] = now
+
+    current_power = {
+        "playerId": player_id,
+        "value": 1
+    }
 
     print("POWER RECEIVED:", current_power)
 
-    return jsonify({"status":"ok"})
-# 🔥 ADD PLAYER
+    return jsonify({"status": "ok"})
 @app.route("/add_player", methods=["POST"])
 def add_player():
+    global instant_player
 
-    data = request.json
+    if "player_id" not in session or "name" not in session:
+        return jsonify({"status": "error"}), 401
 
-    name = data.get("name")
-    channelId = data.get("channelId")
+    name = session["name"]
+    channelId = session["player_id"].lower()
 
-    if not name or not channelId:
-        return jsonify({"status": "error"})
-
-    channelId = channelId.lower()
-
-    # 🔥 अगर already मौजूद है (LIVE या पहले से)
     for p in players:
         if p["channelId"] == channelId:
             return jsonify({"status": "exists"})
 
-    # ✅ तभी add होगा जब नहीं है
     player = {
         "name": name,
         "channelId": channelId
     }
 
     players.append(player)
-    global instant_player
     instant_player = player
 
     print("PLAYER ADDED FROM WEB:", player)
