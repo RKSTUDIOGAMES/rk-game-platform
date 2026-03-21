@@ -252,33 +252,38 @@ setTimeout(()=>{
 showAdPopup(()=>{})
 },10000)
 
+setTimeout(()=>{
+showAdPopup(()=>{})
+},10000)
+
 const STREAM_DELAY = 8
 const COOLDOWN = 20
 
 function givePower(){
 
 let btn = document.getElementById("powerBtn")
-
 btn.style.display = "none"
 
 fetch("/give_power",{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
-},
-
-body: JSON.stringify({
-
-playerId: "{{player_id}}",
-value: 1
-
-})
-
+}
 })
 .then(r=>r.json())
 .then(data=>{
+
+if(data.status === "cooldown"){
+    alert("⏳ Cooldown active")
+    btn.style.display = "inline-block"
+    return
+}
+
+if(data.status === "error"){
+    alert("Something went wrong ❌")
+    btn.style.display = "inline-block"
+    return
+}
 
 console.log("POWER SENT", data)
 
@@ -286,9 +291,13 @@ startDelayTimer()
 startCooldownTimer()
 
 })
+.catch(err=>{
+    console.log(err)
+    alert("Server error ❌")
+    btn.style.display = "inline-block"
+})
 
 }
-
 function startDelayTimer(){
 
 let t = STREAM_DELAY
@@ -352,21 +361,23 @@ fetch("/add_player", {
 method: "POST",
 headers:{
 "Content-Type":"application/json"
-},
-body: JSON.stringify({
-name: "{{name}}",
-channelId: "{{player_id}}"
-})
+}
 })
 .then(r => r.json())
 .then(data => {
 
 if(data.status === "exists"){
-alert("Already in game ❌")
+    alert("Already in game ❌")
+}else if(data.status === "error"){
+    alert("Login required ❌")
 }else{
-alert("Ball Added ✅")
+    alert("Ball Added ✅")
 }
 
+})
+.catch(err=>{
+    console.log(err)
+    alert("Server error ❌")
 })
 
 })
