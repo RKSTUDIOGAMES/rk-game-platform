@@ -529,10 +529,10 @@ def give_power():
 
     last_power_times[player_id] = now
 
-    current_power = {
-        "playerId": player_id,
-        "value": 1
-    }
+   power_queue.append({
+    "playerId": player_id,
+    "value": 1
+})
 
     print("POWER RECEIVED:", current_power)
 
