@@ -767,20 +767,21 @@ def verify_login_otp_auto():
     return response
 @app.route("/give_portal_power", methods=["POST"])
 def give_portal_power():
+    try:
 
-    if "player_id" not in session:
-        return jsonify({"status": "error"})
+        if "player_id" not in session:
+            return jsonify({"status": "error"})
 
-    player_id = session["player_id"].lower()
+        player_id = session["player_id"].lower()
 
-    power_queue.append({
-        "playerId": player_id,
-        "type": "portal"
-    })
+        power_queue.append({
+            "playerId": player_id,
+            "type": "portal"
+        })
 
-    print("🌀 PORTAL SENT:", player_id)
+        print("🌀 PORTAL SENT:", player_id)
 
-    return jsonify({"status": "ok"})
+        return jsonify({"status": "ok"})
 
     except Exception as e:
         print("❌ ERROR:", str(e))
