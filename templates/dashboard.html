@@ -266,6 +266,7 @@ btn.style.display = "none"
 
 fetch("/give_power",{
 method:"POST",
+credentials: "include",
 headers:{
 "Content-Type":"application/json"
 }
@@ -359,6 +360,7 @@ showAdPopup(() => {
 
 fetch("/add_player", {
 method: "POST",
+credentials:"include",
 headers:{
 "Content-Type":"application/json"
 }
@@ -410,6 +412,7 @@ function giveNewPower(){
 
 fetch("/give_new_power",{
 method:"POST",
+credentials:"include",
 headers:{
 "Content-Type":"application/json"
 }
@@ -440,6 +443,7 @@ portalLock = true;
 
 fetch("/give_portal_power",{
 method:"POST",
+credentials:"include",
 headers:{
 "Content-Type":"application/json"
 }
