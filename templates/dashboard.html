@@ -427,7 +427,16 @@ headers:{
 })
 
 }
+let portalLock = false;
+
 function givePortalPower(){
+
+if(portalLock){
+    alert("⏳ Wait bro, cooldown chal raha hai");
+    return;
+}
+
+portalLock = true;
 
 fetch("/give_portal_power",{
 method:"POST",
@@ -439,15 +448,48 @@ headers:{
 .then(data=>{
 
 if(data.status === "ok"){
-    console.log("🌀 PORTAL POWER SENT")
+    console.log("🌀 PORTAL SENT");
+
+    startPortalCooldownUI();
 }else{
-    alert("Error ❌")
+    portalLock = false;
+    alert("Error ❌");
 }
 
 })
 .catch(()=>{
-    alert("Server error ❌")
+    portalLock = false;
+    alert("Server error ❌");
 })
+
+}
+
+function startPortalCooldownUI(){
+
+let t = 20; // same as unity cooldown
+
+let btn = document.querySelector(".blue");
+
+btn.disabled = true;
+
+let interval = setInterval(()=>{
+
+btn.innerText = t + "s";
+
+t--;
+
+if(t < 0){
+
+clearInterval(interval);
+
+btn.innerText = "✖";
+btn.disabled = false;
+
+portalLock = false;
+
+}
+
+},1000)
 
 }
 </script>
