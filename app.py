@@ -801,7 +801,24 @@ def admin_login():
             return "Invalid Admin Credentials ❌"
 
     return render_template("admin_login.html")
+@app.route("/move", methods=["POST"])
+def move():
 
+    if "player_id" not in session:
+        return jsonify({"status": "error"})
+
+    data = request.get_json()
+    direction = data.get("direction")
+
+    player_id = session["player_id"].lower()
+
+    power_queue.append({
+        "playerId": player_id,
+        "type": "move",
+        "dir": direction
+    })
+
+    return jsonify({"status": "ok"})
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
