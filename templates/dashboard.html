@@ -223,9 +223,9 @@ Player ID: <b>{{player_id}}</b>
 <button onclick="sendCmd('up')" class="btn">▲</button>
 
 <div>
-<button onclick="sendCmd('left')" class="btn">◀</button>
+<button onclick="sendMove('left')" class="btn">◀</button>
 <button onclick="sendCmd('down')" class="btn">▼</button>
-<button onclick="sendCmd('right')" class="btn">▶</button>
+<button onclick="sendMove('right')" class="btn">▶</button>
 </div>
 </div>
 
@@ -494,6 +494,21 @@ portalLock = false;
 }
 
 },1000)
+
+}
+function sendMove(dir){
+
+    fetch("/move",{
+        method:"POST",
+        credentials:"include",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({direction: dir})
+    })
+    .catch(()=>{
+        console.log("Server error");
+    });
 
 }
 </script>
