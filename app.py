@@ -606,20 +606,13 @@ def remove_player():
 @app.route("/get_power")
 def get_power():
 
-    global power_queue
-
     if len(power_queue) > 0:
-
-        power = power_queue.pop(0)
-
-        return jsonify(power)
+        return jsonify(power_queue.pop(0))   # 🔥 queue se ek power nikalo
 
     return jsonify({
         "playerId": "",
         "value": 0
     })
-
-
 @app.route("/verify_youtube", methods=["POST"])
 def verify_youtube():
 
@@ -775,23 +768,19 @@ def verify_login_otp_auto():
 @app.route("/give_portal_power", methods=["POST"])
 def give_portal_power():
 
-    try:
-        if "player_id" not in session:
-            return jsonify({"status": "error", "msg": "no session"})
+    if "player_id" not in session:
+        return jsonify({"status": "error"})
 
-        player_id = session["player_id"]
+    player_id = session["player_id"].lower()
 
-        power_data = {
-            "playerId": player_id,
-            "type": "portal"
-        }
+    power_queue.append({
+        "playerId": player_id,
+        "type": "portal"
+    })
 
-        global latest_power
-        latest_power = power_data
+    print("🌀 PORTAL SENT:", player_id)
 
-        print("🌀 PORTAL POWER SET:", power_data)
-
-        return jsonify({"status": "ok"})
+    return jsonify({"status": "ok"})
 
     except Exception as e:
         print("❌ ERROR:", str(e))
