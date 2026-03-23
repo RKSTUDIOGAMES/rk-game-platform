@@ -44,7 +44,7 @@ otp_store ={}
 players = []
 instant_queue = []
 power_queue = []
-
+move_queue = []
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
@@ -812,13 +812,23 @@ def move():
 
     player_id = session["player_id"].lower()
 
-    power_queue.append({
+    move_queue.append({
         "playerId": player_id,
         "type": "move",
         "dir": direction
     })
 
     return jsonify({"status": "ok"})
+@app.route("/get_move")
+def get_move():
+
+    if len(move_queue) > 0:
+        return jsonify(move_queue.pop(0))
+
+    return jsonify({
+        "playerId": "",
+        "type": ""
+    })
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
