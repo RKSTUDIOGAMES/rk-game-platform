@@ -232,7 +232,7 @@ Player ID: <b>{{player_id}}</b>
 <div class="action">
 <button onclick="sendCmd('triangle')" class="btn green">▲</button>
 <button onclick="giveNewPower()" class="btn red">●</button>
-<button onclick="sendCmd('cross')" class="btn blue">✖</button>
+<button onclick="givePortalPower()" class="btn blue">✖</button>
 <button id="powerBtn" onclick="givePower()" class="btn pink">■</button>
 
 <div id="cooldownTimer"></div>
@@ -421,6 +421,29 @@ headers:{
     }else{
         alert("Error ❌")
     }
+})
+.catch(()=>{
+    alert("Server error ❌")
+})
+
+}
+function givePortalPower(){
+
+fetch("/give_portal_power",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+}
+})
+.then(r=>r.json())
+.then(data=>{
+
+if(data.status === "ok"){
+    console.log("🌀 PORTAL POWER SENT")
+}else{
+    alert("Error ❌")
+}
+
 })
 .catch(()=>{
     alert("Server error ❌")
