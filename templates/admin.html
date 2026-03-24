@@ -204,8 +204,8 @@ Current Video ID: <b>{{video_id}}</b>
 </td>
 
 <td>{{u[6]}}</td>
-<td>
-{% if u[7] and (time.time() - u[7] < 30) %}
+<td id="status_{{u[4]}}" style="transition:0.3s;">
+{% if u[7] and (time.time() - u[7] < 15) %}
     🟢 Online
 {% else %}
     🔴 Offline
@@ -227,6 +227,30 @@ Current Video ID: <b>{{video_id}}</b>
 </div>
 
 </div>
+<script>
+setInterval(() => {
+    fetch("/api/online_status")
+    .then(res => res.json())
+    .then(data => {
 
+        data.forEach(user => {
+
+            let el = document.getElementById("status_" + user.player_id);
+
+            if(el){
+                if(user.online){
+                    el.innerHTML = "🟢 Online";
+                }else{
+                    el.innerHTML = "🔴 Offline";
+                }
+            }
+
+        });
+
+    })
+    .catch(err => console.log("Error:", err));
+
+}, 5000); // 🔥 har 5 sec update
+</script>
 </body>
 </html>
