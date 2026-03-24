@@ -183,6 +183,7 @@ Current Video ID: <b>{{video_id}}</b>
 <th>Show Panel</th>
 <th>Controller</th>
 <th>Blocked</th>
+<th>Status</th>
 <th>Action</th>
 </tr>
 
@@ -203,7 +204,13 @@ Current Video ID: <b>{{video_id}}</b>
 </td>
 
 <td>{{u[6]}}</td>
-
+<td>
+{% if u[7] and (time.time() - u[7] < 30) %}
+    🟢 Online
+{% else %}
+    🔴 Offline
+{% endif %}
+</td>
 <td>
 {% if u[6] == 1 %}
 <a href="/unblock_player/{{u[0]}}">Unblock</a>
