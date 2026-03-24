@@ -700,7 +700,11 @@ def send_otp():
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
 
-    data = request.json
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"status":"bad_request"})
+
     email = data.get("email")
     otp = data.get("otp")
 
@@ -709,7 +713,6 @@ def verify_otp():
     if not otp_data:
         return jsonify({"status":"fail"})
 
-    # ⏱️ expiry check
     if time.time() - otp_data["time"] > 300:
         otp_store.pop(email, None)
         return jsonify({"status":"expired"})
@@ -723,32 +726,34 @@ def verify_otp():
 @app.route("/verify_login_otp_auto", methods=["POST"])
 def verify_login_otp_auto():
 
-   
-    data = request.json
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"status": "bad_request"})
+
     otp = data.get("otp")
+
+    if not otp:
+        return jsonify({"status": "invalid_otp"})
+
     email = session.get("temp_login_email")
 
-    # ❌ email session missing
     if not email:
         return jsonify({"status":"session_expired"})
 
     otp_data = otp_store.get(email)
 
-    # ❌ OTP exist nahi karta
     if not otp_data:
         return jsonify({"status":"fail"})
 
-    # ⏱️ EXPIRY CHECK (5 min = 300 sec)
     if time.time() - otp_data["time"] > 300:
         otp_store.pop(email, None)
         session.pop("temp_login_email", None)
         return jsonify({"status":"expired"})
 
-    # ❌ OTP match nahi
     if otp_data["otp"] != otp:
         return jsonify({"status":"fail"})
 
-    # ✅ OTP correct → login
     conn = get_db()
     c = conn.cursor()
 
@@ -763,7 +768,6 @@ def verify_login_otp_auto():
     session["name"] = user[1]
     update_last_active(user[4])
 
-    # 🔥 AUTO REMEMBER DEVICE
     token = str(uuid.uuid4())
 
     c.execute(
@@ -773,19 +777,18 @@ def verify_login_otp_auto():
     conn.commit()
     conn.close()
 
-    # 🔥 CLEANUP
     otp_store.pop(email, None)
     session.pop("temp_login_email", None)
 
     response = jsonify({"status":"ok"})
     response.set_cookie(
-    "device_token",
-    token,
-    max_age=60*60*24*30,
-    httponly=True,
-    secure =False,
-    samesite="Lax"
-)
+        "device_token",
+        token,
+        max_age=60*60*24*30,
+        httponly=True,
+        secure=False,
+        samesite="Lax"
+    )
 
     return response
 @app.route("/give_portal_power", methods=["POST"])
