@@ -51,6 +51,7 @@ otpInput.addEventListener("input", function () {
     if (this.value.length === 4) {
         fetch("/verify_login_otp_auto", {
             method: "POST",
+            credentials:"include",
             headers: {"Content-Type":"application/json"},
             body: JSON.stringify({
                 otp: this.value
