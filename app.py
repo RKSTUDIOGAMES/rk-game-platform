@@ -843,6 +843,27 @@ def get_move():
         "playerId": "",
         "type": ""
     })
+@app.route("/api/online_status")
+def online_status():
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT player_id, last_active FROM users")
+    users = c.fetchall()
+
+    conn.close()
+
+    result = []
+
+    for u in users:
+        status = (time.time() - u[1]) < 15
+        result.append({
+            "player_id": u[0],
+            "online": status
+        })
+
+    return jsonify(result)
 @app.route("/api/heartbeat", methods=["POST"])
 def heartbeat():
 
