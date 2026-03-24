@@ -25,6 +25,17 @@ def send_email_otp(to_email, otp):
         sg.send(message)
     except Exception as e:
         print(e)
+def update_last_active(user_id):
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute(
+        "UPDATE users SET last_active=%s WHERE player_id=%s",
+        (time.time(), user_id)
+    )
+
+    conn.commit()
+    conn.close()
 
 def get_db():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
@@ -97,7 +108,7 @@ def valid_player_id(pid):
 def init_db():
     conn = get_db()
     c = conn.cursor()
-
+    
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -109,7 +120,10 @@ def init_db():
         blocked INTEGER DEFAULT 0
     )
     """)
-
+    c.execute("""
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
+""")
     c.execute("""
     CREATE TABLE IF NOT EXISTS live_stream (
         id SERIAL PRIMARY KEY,
@@ -340,6 +354,7 @@ def login():
             if device:
                 session["player_id"] = user[4]
                 session["name"] = user[1]
+                update_last_active(user[4])
                 conn.close()
                 return redirect("/dashboard")
 
@@ -829,6 +844,14 @@ def get_move():
         "playerId": "",
         "type": ""
     })
+@app.route("/api/heartbeat", methods=["POST"])
+def heartbeat():
+
+    if "player_id" in session:
+        update_last_active(session["player_id"])
+
+    return jsonify({"status": "ok"})
+    
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
