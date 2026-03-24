@@ -124,18 +124,23 @@ def init_db():
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
 """)
+    c.execute(
+    "INSERT INTO remembered_devices (email, device_token, created_at) VALUES (%s, %s, %s)",
+    (email, token, time.time())
+)
     c.execute("""
     CREATE TABLE IF NOT EXISTS live_stream (
         id SERIAL PRIMARY KEY,
         video_id TEXT
     )
     """)
-
+    
     c.execute("""
     CREATE TABLE IF NOT EXISTS remembered_devices (
         id SERIAL PRIMARY KEY,
         email TEXT,
-        device_token TEXT
+        device_token TEXT,
+        created_at DOUBLE PRECISION
     )
     """)
 
@@ -345,10 +350,10 @@ def login():
         device_token = request.cookies.get("device_token")
 
         if device_token:
-            c.execute(
-                "SELECT * FROM remembered_devices WHERE email=%s AND device_token=%s",
-                (email, device_token)
-            )
+            c.execute("""
+SELECT * FROM remembered_devices 
+WHERE email=%s AND device_token=%s AND created_at > %s
+""", (email, device_token, time.time() - (60*60*24*30)))
             device = c.fetchone()
 
             if device:
@@ -425,9 +430,8 @@ def dashboard():
 def logout():
 
     session.clear()
-    response = redirect("/login")
-    response.delete_cookie("device_token")
-    return response
+    return redirect("/login")
+  
 @app.route("/admin", methods=["GET","POST"])
 @admin_required
 def admin():
@@ -766,8 +770,8 @@ def verify_login_otp_auto():
     token = str(uuid.uuid4())
 
     c.execute(
-        "INSERT INTO remembered_devices (email, device_token) VALUES (%s, %s)",
-        (email, token)
+        "INSERT INTO remembered_devices (email, device_token, created_at) VALUES (%s, %s,%s)",
+        (email, token, time.time())
     )
     conn.commit()
     conn.close()
