@@ -58,7 +58,7 @@ power_queue = []
 move_queue = []
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-
+app.config['SESSION_COOKIE_SECURE'] = False
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")   # strong password rakho
 
@@ -730,7 +730,7 @@ def verify_login_otp_auto():
 
     # ❌ email session missing
     if not email:
-        return jsonify({"status":"fail"})
+        return jsonify({"status":"session_expired"})
 
     otp_data = otp_store.get(email)
 
@@ -783,7 +783,7 @@ def verify_login_otp_auto():
     token,
     max_age=60*60*24*30,
     httponly=True,
-    secure =True,
+    secure =False,
     samesite="Lax"
 )
 
