@@ -121,6 +121,10 @@ def init_db():
     )
     """)
     c.execute("""
+ALTER TABLE remembered_devices
+ADD COLUMN IF NOT EXISTS created_at DOUBLE PRECISION
+""")
+    c.execute("""
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
 """)
