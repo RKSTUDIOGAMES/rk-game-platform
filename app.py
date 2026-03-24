@@ -425,10 +425,8 @@ def dashboard():
 def logout():
 
     session.clear()
-
     response = redirect("/login")
     response.delete_cookie("device_token")
-
     return response
 @app.route("/admin", methods=["GET","POST"])
 @admin_required
@@ -444,25 +442,34 @@ def admin():
             c.execute("UPDATE live_stream SET video_id=%s WHERE id=1",(video_id,))
 
         if "enable_id" in request.form:
-
             pid = request.form["enable_id"]
-
-            
             c.execute("UPDATE users SET show_panel=1 WHERE player_id=%s", (pid,))
 
         if "disable_id" in request.form:
-
             pid = request.form["disable_id"]
-
             c.execute("UPDATE users SET show_panel=0 WHERE player_id=%s", (pid,))
 
         if "reset" in request.form:
-
             c.execute("UPDATE users SET show_panel=0")
 
         conn.commit()
 
-    c.execute("SELECT * FROM users ORDER BY show_panel DESC, id ASC")
+    # ✅ YAHI PE HONA CHAHIYE
+    current_time = time.time()
+
+    c.execute("""
+    SELECT *,
+    CASE 
+        WHEN last_active > %s THEN 1 
+        ELSE 0 
+    END as online_status
+    FROM users
+    ORDER BY 
+        show_panel DESC,
+        online_status DESC,
+        id ASC
+    """, (current_time - 10,))
+
     users = c.fetchall()
 
     c.execute("SELECT video_id FROM live_stream WHERE id=1")
@@ -753,6 +760,7 @@ def verify_login_otp_auto():
 
     session["player_id"] = user[4]
     session["name"] = user[1]
+    update_last_active(user[4])
 
     # 🔥 AUTO REMEMBER DEVICE
     token = str(uuid.uuid4())
@@ -774,7 +782,7 @@ def verify_login_otp_auto():
     token,
     max_age=60*60*24*30,
     httponly=True,
-    secure = os.getenv("ENV") == "production",
+    secure =True,
     samesite="Lax"
 )
 
@@ -857,7 +865,7 @@ def online_status():
     result = []
 
     for u in users:
-        status = (time.time() - u[1]) < 15
+        status = (time.time() - u[1]) < 8
         result.append({
             "player_id": u[0],
             "online": status
