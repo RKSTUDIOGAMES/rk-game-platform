@@ -108,7 +108,8 @@ def valid_player_id(pid):
 def init_db():
     conn = get_db()
     c = conn.cursor()
-    
+
+    # ✅ USERS TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -120,22 +121,22 @@ def init_db():
         blocked INTEGER DEFAULT 0
     )
     """)
+
+    # ✅ USERS me new column (safe)
     c.execute("""
-ALTER TABLE remembered_devices
-ADD COLUMN IF NOT EXISTS created_at DOUBLE PRECISION
-""")
-    c.execute("""
-ALTER TABLE users 
-ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
-""")
-    
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
+    """)
+
+    # ✅ LIVE STREAM TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS live_stream (
         id SERIAL PRIMARY KEY,
         video_id TEXT
     )
     """)
-    
+
+    # ✅ REMEMBERED DEVICES (pehle create)
     c.execute("""
     CREATE TABLE IF NOT EXISTS remembered_devices (
         id SERIAL PRIMARY KEY,
@@ -145,6 +146,13 @@ ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
     )
     """)
 
+    # ✅ fir alter (future safety)
+    c.execute("""
+    ALTER TABLE remembered_devices
+    ADD COLUMN IF NOT EXISTS created_at DOUBLE PRECISION
+    """)
+
+    # ✅ LOGIN ATTEMPTS TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS login_attempts (
         id SERIAL PRIMARY KEY,
@@ -154,7 +162,7 @@ ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
     )
     """)
 
-    # default row
+    # ✅ DEFAULT ROW (IMPORTANT)
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
         c.execute("INSERT INTO live_stream (video_id) VALUES (%s)", ("",))
