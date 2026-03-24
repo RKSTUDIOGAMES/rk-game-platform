@@ -470,8 +470,7 @@ def admin():
 
     conn.close()
 
-    return render_template("admin.html", users=users, video_id=video[0])
-
+    return render_template("admin.html", users=users, video_id=video[0], time=time)
 
 @app.route("/search_player", methods=["POST"])
 @admin_required
