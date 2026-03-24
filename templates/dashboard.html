@@ -511,6 +511,13 @@ function sendMove(dir){
     });
 
 }
+setInterval(() => {
+    fetch("/api/heartbeat", {
+        method: "POST",
+        credentials: "include"
+    });
+}, 10000); // har 10 sec
+    
 </script>
 </div>
 
