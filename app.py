@@ -124,10 +124,7 @@ def init_db():
 ALTER TABLE users 
 ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
 """)
-    c.execute(
-    "INSERT INTO remembered_devices (email, device_token, created_at) VALUES (%s, %s, %s)",
-    (email, token, time.time())
-)
+    
     c.execute("""
     CREATE TABLE IF NOT EXISTS live_stream (
         id SERIAL PRIMARY KEY,
