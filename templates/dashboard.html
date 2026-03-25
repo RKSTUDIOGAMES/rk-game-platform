@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <title>Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
@@ -21,13 +19,12 @@ body{
     text-align:center;
     border-bottom:1px solid rgba(0,255,200,0.3);
 }
-
 .header h2{
     color:#00ffc3;
     text-shadow:0 0 10px #00ffc3;
 }
 
-/* info panel */
+/* info */
 .info{
     text-align:center;
     margin:20px;
@@ -36,9 +33,8 @@ body{
 /* video */
 .video-container{
     text-align:center;
-    margin-top:20px;
+    position:relative; /* 🔥 important */
 }
-
 iframe{
     width:90%;
     max-width:800px;
@@ -60,52 +56,58 @@ iframe{
     font-weight:bold;
     cursor:pointer;
 }
-
 .main-btn:hover{
     box-shadow:0 0 15px #00ffc3;
 }
 
-/* controller */
+/* controller (OVERLAY) */
 .controller{
+    position:absolute;
+    top:50%;
+    left:0;
+    width:100%;
+    transform:translateY(-50%);
     display:flex;
-    justify-content:center;
-    gap:80px;
-    margin-top:40px;
-    flex-wrap:wrap;
+    justify-content:space-between;
+    padding:0 10px;
+    pointer-events:none;
 }
 
-/* dpad */
+/* dpad (LEFT STRAIGHT) */
 .dpad{
     display:flex;
     flex-direction:column;
-    align-items:center;
-    gap:10px;
+    gap:15px;
 }
 
-/* action buttons */
+/* action (RIGHT STRAIGHT) */
 .action{
-    display:grid;
-    grid-template-columns:60px 60px;
-    gap:12px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
 }
 
 /* buttons */
 .btn{
-    width:65px;
-    height:65px;
+    width:70px;
+    height:70px;
     border-radius:50%;
     border:none;
-    font-size:22px;
+    font-size:24px;
     cursor:pointer;
-    background:#111;
     color:white;
+    background:rgba(0,0,0,0.4);
+    backdrop-filter:blur(10px);
     transition:0.2s;
     box-shadow:0 0 10px rgba(0,255,200,0.3);
+    pointer-events:auto; /* 🔥 clickable */
 }
-
 .btn:hover{
     transform:scale(1.1);
     box-shadow:0 0 15px #00ffc3;
+}
+.btn:active{
+    transform:scale(0.9);
 }
 
 /* colors */
@@ -116,12 +118,13 @@ iframe{
 
 /* timers */
 #cooldownTimer{
+    text-align:center;
     margin-top:15px;
     color:red;
     font-size:18px;
 }
-
 #delayTimer{
+    text-align:center;
     color:yellow;
     font-size:16px;
 }
@@ -131,74 +134,49 @@ iframe{
     text-align:center;
     margin:30px;
 }
-
 .logout a{
     color:#d633ff;
     text-decoration:none;
     text-shadow:0 0 8px #d633ff;
 }
-
 .logout a:hover{
     text-shadow:0 0 15px #ff66ff;
 }
-/*ads*/
-.layout{
-    display:flex;
-    justify-content:center;
-}
 
-/* main content */
-.main-content{
+/* popup ad */
+#adPopup{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
     width:100%;
-    max-width:900px;
+    height:100%;
+    background:rgba(0,0,0,0.85);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
 }
-
-/* side ads */
-.side-ad{
-    width:160px;
-    min-height:400px;
-    margin:20px;
+.ad-box{
     background:#111;
-    border-radius:10px;
+    padding:20px;
+    border-radius:12px;
     text-align:center;
-    padding:10px;
     border:1px solid rgba(0,255,200,0.3);
 }
 
-/* fixed position (pro look 🔥) */
-.left-ad{
-    position:sticky;
-    top:20px;
-}
-
-.right-ad{
-    position:sticky;
-    top:20px;
-}
-
-/* mobile me hide kar dena */
-@media(max-width:1000px){
-    .side-ad{
-        display:none;
+/* mobile */
+@media(max-width:600px){
+    iframe{ height:250px; }
+    .btn{
+        width:60px;
+        height:60px;
+        font-size:20px;
     }
 }
 </style>
-
 </head>
 
 <body>
-<div class="layout">
-
-    <!-- LEFT AD -->
-    <div class="side-ad left-ad">
-        <p>Ad Space</p>
-        <!-- Yahan ad code -->
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-
-        <!-- TERA PURA DASHBOARD YAHA SHIFT KAR -->
 
 <div class="header">
 <h2>🎮 Dashboard</h2>
@@ -211,331 +189,190 @@ Player ID: <b>{{player_id}}</b>
 
 <div class="video-container">
 <iframe src="https://www.youtube.com/embed/{{video_id}}" allowfullscreen></iframe>
-</div>
-
-<button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
 
 {% if controller_enable == 1 %}
 
 <div class="controller">
 
+<!-- LEFT -->
 <div class="dpad">
 <button onclick="sendCmd('up')" class="btn">▲</button>
-
-<div>
 <button onclick="sendMove('left')" class="btn">◀</button>
 <button onclick="sendCmd('down')" class="btn">▼</button>
 <button onclick="sendMove('right')" class="btn">▶</button>
 </div>
-</div>
 
+<!-- RIGHT -->
 <div class="action">
 <button onclick="sendCmd('triangle')" class="btn green">▲</button>
 <button onclick="giveNewPower()" class="btn red">●</button>
 <button onclick="givePortalPower()" class="btn blue">✖</button>
 <button id="powerBtn" onclick="givePower()" class="btn pink">■</button>
-
-<div id="cooldownTimer"></div>
-<div id="delayTimer" style="display:none;"></div>
 </div>
 
 </div>
 
 {% endif %}
 
+</div>
+
+<div id="cooldownTimer"></div>
+<div id="delayTimer" style="display:none;"></div>
+
+<button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
+
 <div class="logout">
-<a href="/logout" onclick="showAdBeforeLogout(event)">Logout</a>
+<a href="/logout" onclick="logoutWithAd(event)">Logout</a>
 </div>
 
-<script>
-setTimeout(()=>{
-showAdPopup(()=>{})
-},10000)
-
-setTimeout(()=>{
-showAdPopup(()=>{})
-},10000)
-
-const STREAM_DELAY = 8
-const COOLDOWN = 20
-
-function givePower(){
-
-let btn = document.getElementById("powerBtn")
-btn.style.display = "none"
-
-fetch("/give_power",{
-method:"POST",
-credentials: "include",
-headers:{
-"Content-Type":"application/json"
-}
-})
-.then(r=>r.json())
-.then(data=>{
-
-if(data.status === "cooldown"){
-    alert("⏳ Cooldown active")
-    btn.style.display = "inline-block"
-    return
-}
-
-if(data.status === "error"){
-    alert("Something went wrong ❌")
-    btn.style.display = "inline-block"
-    return
-}
-
-console.log("POWER SENT", data)
-
-startDelayTimer()
-startCooldownTimer()
-
-})
-.catch(err=>{
-    console.log(err)
-    alert("Server error ❌")
-    btn.style.display = "inline-block"
-})
-
-}
-function startDelayTimer(){
-
-let t = STREAM_DELAY
-
-let el = document.getElementById("delayTimer")
-
-el.style.display = "block"
-
-let interval = setInterval(()=>{
-
-el.innerText = "⚡ Power activating in " + t + "s"
-
-t--
-
-if(t < 0){
-
-clearInterval(interval)
-
-el.innerText = "⚡ Power Activated!"
-
-}
-
-},1000)
-
-}
-
-function startCooldownTimer(){
-
-let t = COOLDOWN
-
-let el = document.getElementById("cooldownTimer")
-let btn = document.getElementById("powerBtn")
-
-el.style.display = "block"
-
-let interval = setInterval(()=>{
-
-el.innerText = "Cooldown: " + t + "s"
-
-t--
-
-if(t < 0){
-
-clearInterval(interval)
-
-el.style.display = "none"
-
-btn.style.display = "inline-block"
-
-}
-
-},1000)
-
-}
-
-function addBall(){
-
-showAdPopup(() => {
-
-fetch("/add_player", {
-method: "POST",
-credentials:"include",
-headers:{
-"Content-Type":"application/json"
-}
-})
-.then(r => r.json())
-.then(data => {
-
-if(data.status === "exists"){
-    alert("Already in game ❌")
-}else if(data.status === "error"){
-    alert("Login required ❌")
-}else{
-    alert("Ball Added ✅")
-}
-
-})
-.catch(err=>{
-    console.log(err)
-    alert("Server error ❌")
-})
-
-})
-
-}
-function showAdPopup(callback){
-
-let ad = document.getElementById("adPopup")
-ad.style.display = "flex"
-
-setTimeout(()=>{
-    closeAd()
-    if(callback) callback()
-}, 3000)
-
-}
-
-function closeAd(){
-document.getElementById("adPopup").style.display = "none"
-}
-function showAdBeforeLogout(e){
-e.preventDefault()
-
-showAdPopup(()=>{
-window.location.href = "/logout"
-})
-
-}
-function giveNewPower(){
-
-fetch("/give_new_power",{
-method:"POST",
-credentials:"include",
-headers:{
-"Content-Type":"application/json"
-}
-})
-.then(r=>r.json())
-.then(data=>{
-    if(data.status === "ok"){
-        console.log("NEW POWER SENT 🔥")
-    }else{
-        alert("Error ❌")
-    }
-})
-.catch(()=>{
-    alert("Server error ❌")
-})
-
-}
-let portalLock = false;
-
-function givePortalPower(){
-
-if(portalLock){
-    alert("⏳ Wait bro, cooldown chal raha hai");
-    return;
-}
-
-portalLock = true;
-
-fetch("/give_portal_power",{
-method:"POST",
-credentials:"include",
-headers:{
-"Content-Type":"application/json"
-}
-})
-.then(r=>r.json())
-.then(data=>{
-
-if(data.status === "ok"){
-    console.log("🌀 PORTAL SENT");
-
-    startPortalCooldownUI();
-}else{
-    portalLock = false;
-    alert("Error ❌");
-}
-
-})
-.catch(()=>{
-    portalLock = false;
-    alert("Server error ❌");
-})
-
-}
-
-function startPortalCooldownUI(){
-
-let t = 20; // same as unity cooldown
-
-let btn = document.querySelector(".blue");
-
-btn.disabled = true;
-
-let interval = setInterval(()=>{
-
-btn.innerText = t + "s";
-
-t--;
-
-if(t < 0){
-
-clearInterval(interval);
-
-btn.innerText = "✖";
-btn.disabled = false;
-
-portalLock = false;
-
-}
-
-},1000)
-
-}
-function sendMove(dir){
-
-    fetch("/move",{
-        method:"POST",
-        credentials:"include",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify({direction: dir})
-    })
-    .catch(()=>{
-        console.log("Server error");
-    });
-
-}
-setInterval(() => {
-    fetch("/api/heartbeat", {
-        method: "POST",
-        credentials: "include"
-    });
-}, 5000); // har 10 sec
-    
-</script>
-</div>
-
-    <!-- RIGHT AD -->
-    <div class="side-ad right-ad">
-        <p>Ad Space</p>
-        <!-- Yahan ad code -->
-    </div>
-
-</div>
-<div id="adPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:9999;">
-    
-    <div style="background:#111; padding:20px; border-radius:10px; text-align:center;">
+<!-- POPUP AD -->
+<div id="adPopup">
+    <div class="ad-box">
         <p>🎁 Reward Loading...</p>
         <p>Ad running... ⏳</p>
         <button onclick="closeAd()">Skip</button>
     </div>
-
 </div>
+
+<script>
+
+const STREAM_DELAY = 8
+const COOLDOWN = 20
+
+setTimeout(()=>{ showAdPopup(()=>{}) },10000)
+
+function givePower(){
+let btn = document.getElementById("powerBtn")
+btn.style.display = "none"
+
+fetch("/give_power",{method:"POST",credentials:"include"})
+.then(r=>r.json())
+.then(data=>{
+if(data.status==="cooldown"){
+    alert("⏳ Cooldown active")
+    btn.style.display="inline-block"
+    return
+}
+if(data.status==="error"){
+    alert("❌ Error")
+    btn.style.display="inline-block"
+    return
+}
+startDelayTimer()
+startCooldownTimer()
+})
+.catch(()=>{
+    alert("Server error ❌")
+    btn.style.display="inline-block"
+})
+}
+
+function startDelayTimer(){
+let t=STREAM_DELAY
+let el=document.getElementById("delayTimer")
+el.style.display="block"
+
+let i=setInterval(()=>{
+el.innerText="⚡ Power in "+t+"s"
+t--
+if(t<0){
+clearInterval(i)
+el.innerText="⚡ Activated!"
+}
+},1000)
+}
+
+function startCooldownTimer(){
+let t=COOLDOWN
+let el=document.getElementById("cooldownTimer")
+let btn=document.getElementById("powerBtn")
+
+let i=setInterval(()=>{
+el.innerText="Cooldown: "+t+"s"
+t--
+if(t<0){
+clearInterval(i)
+el.innerText=""
+btn.style.display="inline-block"
+}
+},1000)
+}
+
+function addBall(){
+showAdPopup(()=>{
+fetch("/add_player",{method:"POST",credentials:"include"})
+.then(r=>r.json())
+.then(data=>{
+if(data.status==="exists") alert("Already in game ❌")
+else alert("Ball Added ✅")
+})
+})
+}
+
+function showAdPopup(callback){
+let ad=document.getElementById("adPopup")
+ad.style.display="flex"
+
+setTimeout(()=>{
+closeAd()
+if(callback) callback()
+},3000)
+}
+
+function closeAd(){
+document.getElementById("adPopup").style.display="none"
+}
+
+function logoutWithAd(e){
+e.preventDefault()
+showAdPopup(()=>{
+window.location.href="/logout"
+})
+}
+
+function giveNewPower(){
+fetch("/give_new_power",{method:"POST",credentials:"include"})
+}
+
+let portalLock=false
+function givePortalPower(){
+if(portalLock) return alert("Cooldown")
+
+portalLock=true
+
+fetch("/give_portal_power",{method:"POST",credentials:"include"})
+.then(()=>{
+let t=20
+let btn=document.querySelector(".blue")
+btn.disabled=true
+
+let i=setInterval(()=>{
+btn.innerText=t+"s"
+t--
+if(t<0){
+clearInterval(i)
+btn.innerText="✖"
+btn.disabled=false
+portalLock=false
+}
+},1000)
+})
+}
+
+function sendMove(dir){
+fetch("/move",{
+method:"POST",
+credentials:"include",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({direction:dir})
+})
+}
+
+setInterval(()=>{
+fetch("/api/heartbeat",{method:"POST",credentials:"include"})
+},5000)
+
+</script>
+
 </body>
 </html>
