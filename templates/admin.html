@@ -165,7 +165,13 @@ Current Video ID: <b>{{video_id}}</b>
 <button type="submit">Search</button>
 </form>
 </div>
-
+<div class="card">
+<h3>Token Claim</h3>
+<form method="post" action="/use_token">
+<input name="token" placeholder="Enter Token">
+<button>Use Token</button>
+</form>
+</div>
 <div class="card">
 <form method="post">
 <button name="reset" value="1" class="danger">Reset All Players</button>
