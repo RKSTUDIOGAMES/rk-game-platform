@@ -165,7 +165,7 @@ Player ID: <b>{{player_id}}</b>
 
 <div class="video-container">
 <iframe src="https://www.youtube.com/embed/{{video_id}}" allowfullscreen></iframe>
-
+{% if controller_enable == 1 %}
 <div class="controller">
 
 <div class="dpad">
@@ -183,6 +183,7 @@ Player ID: <b>{{player_id}}</b>
 </div>
 
 </div>
+{% endif %}
 </div>
 
 <div id="cooldownTimer"></div>
@@ -331,6 +332,12 @@ fetch("/claim_token",{method:"POST"})
     }
 });
 }
+setInterval(()=>{
+    fetch("/api/heartbeat",{
+        method:"POST",
+        credentials:"include"
+    });
+}, 5000);
 </script>
 
 <!-- POPUP AD -->
