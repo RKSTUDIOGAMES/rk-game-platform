@@ -317,7 +317,15 @@ showAdPopup(()=>{
 window.location.href="/logout"
 })
 }
-
+function claimToken(){
+fetch("/claim_token",{method:"POST"})
+.then(r=>r.json())
+.then(data=>{
+    if(data.status=="ok"){
+        alert("Your Token: "+data.token);
+    }
+});
+}
 </script>
 
 <!-- POPUP AD -->
