@@ -149,6 +149,27 @@ iframe{
 .logout a:hover{
     text-shadow:0 0 15px #ff66ff;
 }
+.top-stats{
+    display:flex;
+    justify-content:space-around;
+    margin:20px;
+    flex-wrap:wrap;
+}
+
+.stat-box{
+    background:rgba(0,0,0,0.4);
+    padding:15px;
+    border-radius:12px;
+    border:1px solid #00ffc3;
+    text-align:center;
+    min-width:100px;
+    box-shadow:0 0 10px rgba(0,255,200,0.3);
+}
+
+.stat-box b{
+    font-size:20px;
+    color:#00ffc3;
+}
 </style>
 </head>
 
@@ -157,7 +178,22 @@ iframe{
 <div class="header">
 <h2>🎮 Dashboard</h2>
 </div>
+<div class="top-stats">
+    <div class="stat-box">
+        🏆 Points<br>
+        <b>{{points}}</b>
+    </div>
 
+    <div class="stat-box">
+        🎯 To 10000<br>
+        <b>{{remaining}}</b>
+    </div>
+
+    <div class="stat-box">
+        📊 Rank<br>
+        <b>#{{rank}}</b>
+    </div>
+</div>
 <div class="info">
 Welcome <b>{{name}}</b><br>
 Player ID: <b>{{player_id}}</b>
