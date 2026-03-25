@@ -249,7 +249,7 @@ def init_db():
         password TEXT,
         player_id TEXT UNIQUE,
         show_panel INTEGER DEFAULT 0,
-        blocked INTEGER DEFAULT 0
+        blocked INTEGER DEFAULT 0,
          points INTEGER DEFAULT 0,
         spin_token INTEGER DEFAULT 0,
         token_id TEXT,
@@ -1216,12 +1216,17 @@ def claim_token():
     c.execute("SELECT spin_token, token_id FROM users WHERE player_id=%s",(pid,))
     u = c.fetchone()
 
-    if u[0] == 0:
-        return jsonify({"status":"no_token"})
+    if not u or u[0] == 0 or u[1] is None:
+    return jsonify({"status":"no_token"})
+    c.execute("""
+    UPDATE users 
+    SET points=0, token_used=1, tokun_id=NULL
+    WHERE player_id=%s
+    """,(pid,))
 
-    c.execute("UPDATE users SET points=0 WHERE player_id=%s",(pid,))
-    conn.commit()
-    conn.close()
+   conn.commit()
+   conn.close()
+
 
     return jsonify({"status":"ok","token":u[1]})
 @app.route("/admin_logout")
@@ -1229,7 +1234,7 @@ def claim_token():
 def admin_logout():
     session.pop("admin", None)
     return redirect("/admin_login")
-init_db()
+
 def update_points(pid, add):
 
     conn = get_db()
@@ -1264,6 +1269,7 @@ def update_points(pid, add):
 
     conn.commit()
     conn.close()
+init_db()
 if __name__ =="__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
