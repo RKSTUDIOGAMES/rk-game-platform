@@ -218,7 +218,8 @@ Current Video ID: <b>{{video_id}}</b>
 <a href="/block_player/{{u[0]}}">Block</a>
 {% endif %}
 <br><br>
-<a href="/admin_delete_user/{{u[0]}}">
+<a href="/admin_delete_user/{{u[0]}}" 
+   onclick="return confirm('⚠️ WARNING!\n\nYe user permanently delete ho jayega.\nKya aap sure ho?')">
     <button class="danger">Delete</button>
 </a>
 </td>
