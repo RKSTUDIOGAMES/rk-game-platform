@@ -189,13 +189,59 @@ Player ID: <b>{{player_id}}</b>
 <div id="delayTimer"></div>
 
 <button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
+<button onclick="startAd(30)">🎥 30 sec Ad (+50)</button>
+<button onclick="startAd(60)">🎥 60 sec Ad (+120)</button>
 
+<button onclick="claimToken()">🎁 Claim Token</button>
+
+<a href="/leaderboard">🏆 Leaderboard</a>
+    <br>
 <div class="logout">
 <a href="/logout" onclick="logoutWithAd(event)">Logout</a>
 </div>
 
 <script>
+let adStart = 0;
 
+function startAd(duration){
+
+    adStart = Date.now();
+
+    alert("Ad started for " + duration + " sec");
+
+    // 🔥 server ko bolo ad start hua
+    fetch("/start_ad",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({duration:duration})
+    });
+
+    setTimeout(()=>{
+        finishAd(duration);
+    }, duration * 1000);
+}
+
+function finishAd(duration){
+
+    let watched = (Date.now() - adStart)/1000;
+
+    if(watched < duration-2){
+        alert("Ad skipped ❌");
+        return;
+    }
+
+    fetch("/watch_ad",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({duration:duration})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+        if(data.status=="ok"){
+            alert("+"+data.points+" points 🎉");
+        }
+    });
+}
 function startCooldown(btn, time, text){
 btn.disabled = true;
 let t = time;
