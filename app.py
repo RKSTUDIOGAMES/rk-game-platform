@@ -13,11 +13,142 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 def send_email_otp(to_email, otp):
+    html_template = f"""
+    <div style="margin:0;padding:0;background:linear-gradient(135deg,#0f2027,#203a43,#000);font-family:Arial,sans-serif;">
+
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td align="center">
+
+                    <table width="420" cellpadding="0" cellspacing="0"
+                    style="margin-top:40px;background:#0b0b0b;border-radius:16px;
+                    padding:35px;border:1px solid rgba(0,255,200,0.4);
+                    box-shadow:0 0 30px rgba(0,255,200,0.5);">
+
+                        <!-- LOGO / TITLE -->
+                        <tr>
+                            <td align="center">
+                                <h1 style="
+                                    color:#00ffc3;
+                                    margin:0;
+                                    text-shadow:0 0 10px #00ffc3,0 0 20px #00ffc3;
+                                    letter-spacing:2px;
+                                ">
+                                    🎮 RK GAMES
+                                </h1>
+
+                                <p style="color:#aaa;font-size:13px;margin-top:5px;">
+                                    Secure Login System
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- TITLE -->
+                        <tr>
+                            <td align="center" style="padding-top:20px;">
+                                <h2 style="color:white;margin:0;">
+                                    🔐 OTP Verification
+                                </h2>
+
+                                <p style="color:#888;font-size:14px;margin-top:8px;">
+                                    Enter this code to continue login
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- OTP BOX -->
+                        <tr>
+                            <td align="center">
+
+                                <div style="
+                                    margin:30px 0;
+                                    padding:18px;
+                                    font-size:34px;
+                                    letter-spacing:10px;
+                                    background:linear-gradient(135deg,#000,#111);
+                                    color:#00ffc3;
+                                    border-radius:10px;
+                                    border:1px solid #00ffc3;
+                                    font-weight:bold;
+                                    box-shadow:0 0 15px #00ffc3 inset,0 0 20px rgba(0,255,200,0.5);
+                                ">
+                                    {otp}
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        <!-- TIMER -->
+                        <tr>
+                            <td align="center">
+                                <p style="color:#ffaa00;font-size:13px;">
+                                    ⏳ Valid for 5 minutes only
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- WARNING -->
+                        <tr>
+                            <td align="center">
+                                <p style="
+                                    color:#ff4d4d;
+                                    font-size:12px;
+                                    background:rgba(255,0,0,0.1);
+                                    padding:10px;
+                                    border-radius:8px;
+                                    border:1px solid rgba(255,0,0,0.3);
+                                ">
+                                    ⚠ Never share this OTP with anyone
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- BUTTON -->
+                        <tr>
+                            <td align="center">
+                                <a href="#" style="
+                                    display:inline-block;
+                                    margin-top:20px;
+                                    padding:12px 25px;
+                                    background:#00ffc3;
+                                    color:black;
+                                    text-decoration:none;
+                                    border-radius:8px;
+                                    font-weight:bold;
+                                    box-shadow:0 0 15px #00ffc3;
+                                ">
+                                    Verify Now
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- FOOTER -->
+                        <tr>
+                            <td align="center">
+                                <p style="color:#555;font-size:11px;margin-top:25px;">
+                                    If you didn’t request this, ignore this email safely.
+                                </p>
+
+                                <p style="color:#333;font-size:10px;">
+                                    © 2026 RK Games. All rights reserved.
+                                </p>
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    """
+
     message = Mail(
         from_email=os.environ.get("SENDER_EMAIL"),
         to_emails=to_email,
-        subject="Your OTP Code",
-        html_content=f"<strong>Your OTP is: {otp}</strong>"
+        subject="🔐 RK Games OTP - Secure Login Code",
+        html_content=html_template
     )
 
     try:
