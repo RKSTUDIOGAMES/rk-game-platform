@@ -6,6 +6,42 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
+.claim-btn{
+    display:block;
+    margin:20px auto;
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(45deg,#ffcc00,#ffaa00);
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 0 15px rgba(255,170,0,0.5);
+}
+
+.claim-btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 25px rgba(255,170,0,0.8);
+}
+
+.leader-btn{
+    display:block;
+    text-align:center;
+    margin:15px auto;
+    padding:12px;
+    width:200px;
+    border-radius:10px;
+    text-decoration:none;
+    background:linear-gradient(45deg,#00ffc3,#00aaff);
+    color:black;
+    font-weight:bold;
+    box-shadow:0 0 15px rgba(0,255,200,0.4);
+}
+
+.leader-btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 25px rgba(0,255,200,0.7);
+}
 body{
     margin:0;
     font-family:'Orbitron', sans-serif;
@@ -264,9 +300,14 @@ Player ID: <b>{{player_id}}</b>
 💰 Earn +120 Points (60s)
 </button>
 
-<button onclick="claimToken()">🎁 Claim Token</button>
-
-<a href="/leaderboard">🏆 Leaderboard</a>
+{% if points >= 10000 %}
+<button class="claim-btn" onclick="claimToken()">
+🎁 Claim Reward Token
+</button>
+{% endif %}
+<a href="/leaderboard" class="leader-btn">
+🏆 View Leaderboard
+</a>
     <br>
 <div class="logout">
 <a href="/logout" onclick="logoutWithAd(event)">Logout</a>
