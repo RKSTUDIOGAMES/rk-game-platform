@@ -910,7 +910,85 @@ def heartbeat():
         update_last_active(session["player_id"])
 
     return jsonify({"status": "ok"})
-    
+@app.route("/forgot_password", methods=["GET","POST"])
+def forgot_password():
+
+    if request.method == "POST":
+
+        email = request.form["email"].strip().lower()
+
+        if not valid_email(email):
+            return "Invalid Email"
+
+        conn = get_db()
+        c = conn.cursor()
+
+        c.execute("SELECT * FROM users WHERE email=%s", (email,))
+        user = c.fetchone()
+        conn.close()
+
+        if not user:
+            return "Email not found ❌"
+
+        # 🔥 OTP SEND
+        otp = str(random.randint(1000,9999))
+        otp_store[email] = {
+            "otp": otp,
+            "time": time.time()
+        }
+
+        session["reset_email"] = email
+
+        send_email_otp(email, otp)
+
+        return redirect("/reset_password")
+
+    return render_template("forgot_password.html")
+@app.route("/reset_password", methods=["GET","POST"])
+def reset_password():
+
+    email = session.get("reset_email")
+
+    if not email:
+        return redirect("/login")
+
+    if request.method == "POST":
+
+        otp = request.form["otp"]
+        new_password = request.form["password"]
+
+        otp_data = otp_store.get(email)
+
+        if not otp_data:
+            return "OTP expired ❌"
+
+        if time.time() - otp_data["time"] > 300:
+            otp_store.pop(email, None)
+            return "OTP expired ❌"
+
+        if otp_data["otp"] != otp:
+            return "Wrong OTP ❌"
+
+        if not strong_password(new_password):
+            return "Weak password ❌"
+
+        # 🔥 UPDATE PASSWORD
+        conn = get_db()
+        c = conn.cursor()
+
+        hashed = generate_password_hash(new_password)
+
+        c.execute("UPDATE users SET password=%s WHERE email=%s", (hashed, email))
+
+        conn.commit()
+        conn.close()
+
+        otp_store.pop(email, None)
+        session.pop("reset_email", None)
+
+        return "Password updated ✅ <br><a href='/login'>Login</a>"
+
+    return render_template("reset_password.html")
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
