@@ -534,12 +534,13 @@ def dashboard():
 
     conn = get_db()
     c = conn.cursor()
+    pid = session["player_id"]
 
+    # 🔥 BLOCK CHECK
     c.execute(
         "SELECT blocked FROM users WHERE player_id=%s",
-        (session["player_id"],)
+        (pid,)
     )
-
     b = c.fetchone()
 
     if b and b[0] == 1:
@@ -547,31 +548,50 @@ def dashboard():
         session.clear()
         return "You are blocked by admin"
 
+    # 🔥 SHOW PANEL
     c.execute(
         "SELECT show_panel FROM users WHERE player_id=%s",
-        (session["player_id"],)
+        (pid,)
     )
-
     status = c.fetchone()
 
     controller_enable = 0
-
     if status and status[0] == 1:
         controller_enable = 1
 
+    # 🎥 VIDEO
     c.execute("SELECT video_id FROM live_stream LIMIT 1")
     video = c.fetchone()
+
+    # 🏆 POINTS
+    c.execute("SELECT points FROM users WHERE player_id=%s", (pid,))
+    p = c.fetchone()
+    points = p[0] if p else 0
+
+    # 🎯 REMAINING
+    remaining = 10000 - points
+    if remaining < 0:
+        remaining = 0
+
+    # 📊 RANK
+    c.execute("""
+        SELECT COUNT(*) + 1 FROM users
+        WHERE points > %s
+    """, (points,))
+    rank = c.fetchone()[0]
 
     conn.close()
 
     return render_template(
         "dashboard.html",
         name=session["name"],
-        player_id=session["player_id"],
+        player_id=pid,
         video_id=video[0],
-        controller_enable=controller_enable
+        controller_enable=controller_enable,
+        points=points,
+        remaining=remaining,
+        rank=rank
     )
-
 
 @app.route("/logout")
 def logout():
