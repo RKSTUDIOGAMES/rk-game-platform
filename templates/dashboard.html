@@ -170,6 +170,37 @@ iframe{
     font-size:20px;
     color:#00ffc3;
 }
+#adBox{
+    background:#111;
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+    width:300px;
+    border:1px solid #00ffc3;
+    box-shadow:0 0 20px rgba(0,255,200,0.4);
+}
+
+#adTimer{
+    font-size:28px;
+    margin:10px 0;
+    color:#00ffc3;
+}
+
+.progress{
+    width:100%;
+    height:8px;
+    background:#333;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#00ffc3;
+    transition:0.3s;
+}
 </style>
 </head>
 
@@ -225,13 +256,12 @@ Player ID: <b>{{player_id}}</b>
 <div id="cooldownTimer"></div>
 <div id="delayTimer"></div>
 
-<button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
 <button class="main-btn" onclick="startAd(30)">
-🎥 Watch 30s Ad (+50)
+💰 Earn +50 Points (30s)
 </button>
 
 <button class="main-btn" onclick="startAd(60)">
-🎥 Watch 60s Ad (+120)
+💰 Earn +120 Points (60s)
 </button>
 
 <button onclick="claimToken()">🎁 Claim Token</button>
@@ -244,33 +274,50 @@ Player ID: <b>{{player_id}}</b>
 
 <script>
 let adStart = 0;
+let adInterval;
 
 function startAd(duration){
 
     adStart = Date.now();
 
-    alert("Ad started for " + duration + " sec");
+    document.getElementById("adPopup").style.display = "flex";
 
-    // 🔥 server ko bolo ad start hua
+    let timerEl = document.getElementById("adTimer");
+    let progress = document.getElementById("progressBar");
+    let skipBtn = document.getElementById("skipBtn");
+
+    let timeLeft = duration;
+
     fetch("/start_ad",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({duration:duration})
     });
 
-    setTimeout(()=>{
-        finishAd(duration);
-    }, duration * 1000);
+    adInterval = setInterval(()=>{
+
+        timerEl.innerText = timeLeft + "s";
+
+        let percent = ((duration - timeLeft) / duration) * 100;
+        progress.style.width = percent + "%";
+
+        timeLeft--;
+
+        if(timeLeft <= 5){
+            skipBtn.disabled = false;
+        }
+
+        if(timeLeft < 0){
+            clearInterval(adInterval);
+            finishAd(duration);
+        }
+
+    },1000);
 }
 
 function finishAd(duration){
 
-    let watched = (Date.now() - adStart)/1000;
-
-    if(watched < duration-2){
-        alert("Ad skipped ❌");
-        return;
-    }
+    document.getElementById("adPopup").style.display = "none";
 
     fetch("/watch_ad",{
         method:"POST",
@@ -283,6 +330,11 @@ function finishAd(duration){
             alert("+"+data.points+" points 🎉");
         }
     });
+}
+
+function closeAd(){
+    clearInterval(adInterval);
+    document.getElementById("adPopup").style.display = "none";
 }
 function startCooldown(btn, time, text){
 btn.disabled = true;
@@ -378,10 +430,17 @@ setInterval(()=>{
 
 <!-- POPUP AD -->
 <div id="adPopup">
-    <div style="background:#111; padding:20px; border-radius:12px; text-align:center;">
-        <p>🎁 Reward Loading...</p>
-        <p>Ad running... ⏳</p>
-        <button onclick="closeAd()">Skip</button>
+    <div id="adBox">
+        <h3>🎥 Advertisement</h3>
+        <div id="adTimer">0s</div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <p id="adStatus">Ad running... ⏳</p>
+
+        <button id="skipBtn" onclick="closeAd()" disabled>Skip</button>
     </div>
 </div>
 
