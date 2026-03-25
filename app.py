@@ -1217,16 +1217,16 @@ def claim_token():
     u = c.fetchone()
 
     if not u or u[0] == 0 or u[1] is None:
-    return jsonify({"status":"no_token"})
+        return jsonify({"status":"no_token"})
+
     c.execute("""
     UPDATE users 
-    SET points=0, token_used=1, tokun_id=NULL
+    SET points=0, token_used=1, token_id=NULL
     WHERE player_id=%s
     """,(pid,))
 
-   conn.commit()
-   conn.close()
-
+    conn.commit()
+    conn.close()
 
     return jsonify({"status":"ok","token":u[1]})
 @app.route("/admin_logout")
