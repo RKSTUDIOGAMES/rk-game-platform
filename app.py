@@ -250,17 +250,41 @@ def init_db():
         player_id TEXT UNIQUE,
         show_panel INTEGER DEFAULT 0,
         blocked INTEGER DEFAULT 0,
-         points INTEGER DEFAULT 0,
+        points INTEGER DEFAULT 0,
         spin_token INTEGER DEFAULT 0,
         token_id TEXT,
         token_used INTEGER DEFAULT 0,
         token_expiry DOUBLE PRECISION DEFAULT 0,
-
         last_active DOUBLE PRECISION DEFAULT 0
     )
     """)
 
-    # ✅ USERS me new column (safe)
+    # ✅ USERS me missing columns (safe fix)
+    c.execute("""
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS points INTEGER DEFAULT 0
+    """)
+
+    c.execute("""
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS spin_token INTEGER DEFAULT 0
+    """)
+
+    c.execute("""
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS token_id TEXT
+    """)
+
+    c.execute("""
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS token_used INTEGER DEFAULT 0
+    """)
+
+    c.execute("""
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS token_expiry DOUBLE PRECISION DEFAULT 0
+    """)
+
     c.execute("""
     ALTER TABLE users 
     ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
@@ -274,7 +298,7 @@ def init_db():
     )
     """)
 
-    # ✅ REMEMBERED DEVICES (pehle create)
+    # ✅ REMEMBERED DEVICES
     c.execute("""
     CREATE TABLE IF NOT EXISTS remembered_devices (
         id SERIAL PRIMARY KEY,
@@ -284,7 +308,6 @@ def init_db():
     )
     """)
 
-    # ✅ fir alter (future safety)
     c.execute("""
     ALTER TABLE remembered_devices
     ADD COLUMN IF NOT EXISTS created_at DOUBLE PRECISION
@@ -300,14 +323,13 @@ def init_db():
     )
     """)
 
-    # ✅ DEFAULT ROW (IMPORTANT)
+    # ✅ DEFAULT ROW
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
         c.execute("INSERT INTO live_stream (video_id) VALUES (%s)", ("",))
 
     conn.commit()
     conn.close()
-
 
 @app.route("/check_player_id")
 def check_player_id():
