@@ -33,7 +33,7 @@ body{
 /* video */
 .video-container{
     text-align:center;
-    position:relative; /* 🔥 important */
+    position:relative;
 }
 iframe{
     width:90%;
@@ -60,7 +60,7 @@ iframe{
     box-shadow:0 0 15px #00ffc3;
 }
 
-/* controller (OVERLAY) */
+/* controller */
 .controller{
     position:absolute;
     top:50%;
@@ -73,21 +73,18 @@ iframe{
     pointer-events:none;
 }
 
-/* dpad (LEFT STRAIGHT) */
 .dpad{
     display:flex;
     flex-direction:column;
     gap:15px;
 }
 
-/* action (RIGHT STRAIGHT) */
 .action{
     display:flex;
     flex-direction:column;
     gap:15px;
 }
 
-/* buttons */
 .btn{
     width:70px;
     height:70px;
@@ -100,14 +97,13 @@ iframe{
     backdrop-filter:blur(10px);
     transition:0.2s;
     box-shadow:0 0 10px rgba(0,255,200,0.3);
-    pointer-events:auto; /* 🔥 clickable */
+    pointer-events:auto;
 }
 .btn:hover{
     transform:scale(1.1);
-    box-shadow:0 0 15px #00ffc3;
 }
-.btn:active{
-    transform:scale(0.9);
+.btn:disabled{
+    opacity:0.6;
 }
 
 /* colors */
@@ -121,26 +117,10 @@ iframe{
     text-align:center;
     margin-top:15px;
     color:red;
-    font-size:18px;
 }
 #delayTimer{
     text-align:center;
     color:yellow;
-    font-size:16px;
-}
-
-/* logout */
-.logout{
-    text-align:center;
-    margin:30px;
-}
-.logout a{
-    color:#d633ff;
-    text-decoration:none;
-    text-shadow:0 0 8px #d633ff;
-}
-.logout a:hover{
-    text-shadow:0 0 15px #ff66ff;
 }
 
 /* popup ad */
@@ -155,23 +135,6 @@ iframe{
     justify-content:center;
     align-items:center;
     z-index:9999;
-}
-.ad-box{
-    background:#111;
-    padding:20px;
-    border-radius:12px;
-    text-align:center;
-    border:1px solid rgba(0,255,200,0.3);
-}
-
-/* mobile */
-@media(max-width:600px){
-    iframe{ height:250px; }
-    .btn{
-        width:60px;
-        height:60px;
-        font-size:20px;
-    }
 }
 </style>
 </head>
@@ -190,11 +153,8 @@ Player ID: <b>{{player_id}}</b>
 <div class="video-container">
 <iframe src="https://www.youtube.com/embed/{{video_id}}" allowfullscreen></iframe>
 
-{% if controller_enable == 1 %}
-
 <div class="controller">
 
-<!-- LEFT -->
 <div class="dpad">
 <button onclick="sendCmd('up')" class="btn">▲</button>
 <button onclick="sendMove('left')" class="btn">◀</button>
@@ -202,161 +162,64 @@ Player ID: <b>{{player_id}}</b>
 <button onclick="sendMove('right')" class="btn">▶</button>
 </div>
 
-<!-- RIGHT -->
 <div class="action">
-<button onclick="sendCmd('triangle')" class="btn green">▲</button>
-<button onclick="giveNewPower()" class="btn red">●</button>
-<button onclick="givePortalPower()" class="btn blue">✖</button>
-<button id="powerBtn" onclick="givePower()" class="btn pink">■</button>
+<button id="greenBtn" onclick="handleGreen()" class="btn green">▲</button>
+<button id="redBtn" onclick="handleRed()" class="btn red">●</button>
+<button id="blueBtn" onclick="handleBlue()" class="btn blue">✖</button>
+<button id="pinkBtn" onclick="handlePink()" class="btn pink">■</button>
 </div>
 
 </div>
-
-{% endif %}
-
 </div>
 
 <div id="cooldownTimer"></div>
-<div id="delayTimer" style="display:none;"></div>
+<div id="delayTimer"></div>
 
 <button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
 
-<div class="logout">
-<a href="/logout" onclick="logoutWithAd(event)">Logout</a>
-</div>
-
-<!-- POPUP AD -->
-<div id="adPopup">
-    <div class="ad-box">
-        <p>🎁 Reward Loading...</p>
-        <p>Ad running... ⏳</p>
-        <button onclick="closeAd()">Skip</button>
-    </div>
-</div>
-
 <script>
 
-const STREAM_DELAY = 8
-const COOLDOWN = 20
+function startCooldown(btn, time, text){
+btn.disabled = true;
+let t = time;
 
-setTimeout(()=>{ showAdPopup(()=>{}) },10000)
-
-function givePower(){
-let btn = document.getElementById("powerBtn")
-btn.style.display = "none"
-
-fetch("/give_power",{method:"POST",credentials:"include"})
-.then(r=>r.json())
-.then(data=>{
-if(data.status==="cooldown"){
-    alert("⏳ Cooldown active")
-    btn.style.display="inline-block"
-    return
+let i = setInterval(()=>{
+btn.innerText = t + "s";
+t--;
+if(t < 0){
+clearInterval(i);
+btn.innerText = text;
+btn.disabled = false;
 }
-if(data.status==="error"){
-    alert("❌ Error")
-    btn.style.display="inline-block"
-    return
-}
-startDelayTimer()
-startCooldownTimer()
-})
-.catch(()=>{
-    alert("Server error ❌")
-    btn.style.display="inline-block"
-})
+},1000);
 }
 
-function startDelayTimer(){
-let t=STREAM_DELAY
-let el=document.getElementById("delayTimer")
-el.style.display="block"
-
-let i=setInterval(()=>{
-el.innerText="⚡ Power in "+t+"s"
-t--
-if(t<0){
-clearInterval(i)
-el.innerText="⚡ Activated!"
-}
-},1000)
+function handleGreen(){
+let btn = document.getElementById("greenBtn");
+fetch("/sendCmd",{method:"POST",credentials:"include"});
+startCooldown(btn,20,"▲");
 }
 
-function startCooldownTimer(){
-let t=COOLDOWN
-let el=document.getElementById("cooldownTimer")
-let btn=document.getElementById("powerBtn")
-
-let i=setInterval(()=>{
-el.innerText="Cooldown: "+t+"s"
-t--
-if(t<0){
-clearInterval(i)
-el.innerText=""
-btn.style.display="inline-block"
+function handleRed(){
+let btn = document.getElementById("redBtn");
+fetch("/give_new_power",{method:"POST",credentials:"include"});
+startCooldown(btn,20,"●");
 }
-},1000)
+
+function handleBlue(){
+let btn = document.getElementById("blueBtn");
+fetch("/give_portal_power",{method:"POST",credentials:"include"});
+startCooldown(btn,20,"✖");
+}
+
+function handlePink(){
+let btn = document.getElementById("pinkBtn");
+fetch("/give_power",{method:"POST",credentials:"include"});
+startCooldown(btn,20,"■");
 }
 
 function addBall(){
-showAdPopup(()=>{
-fetch("/add_player",{method:"POST",credentials:"include"})
-.then(r=>r.json())
-.then(data=>{
-if(data.status==="exists") alert("Already in game ❌")
-else alert("Ball Added ✅")
-})
-})
-}
-
-function showAdPopup(callback){
-let ad=document.getElementById("adPopup")
-ad.style.display="flex"
-
-setTimeout(()=>{
-closeAd()
-if(callback) callback()
-},3000)
-}
-
-function closeAd(){
-document.getElementById("adPopup").style.display="none"
-}
-
-function logoutWithAd(e){
-e.preventDefault()
-showAdPopup(()=>{
-window.location.href="/logout"
-})
-}
-
-function giveNewPower(){
-fetch("/give_new_power",{method:"POST",credentials:"include"})
-}
-
-let portalLock=false
-function givePortalPower(){
-if(portalLock) return alert("Cooldown")
-
-portalLock=true
-
-fetch("/give_portal_power",{method:"POST",credentials:"include"})
-.then(()=>{
-let t=20
-let btn=document.querySelector(".blue")
-btn.disabled=true
-
-let i=setInterval(()=>{
-btn.innerText=t+"s"
-t--
-if(t<0){
-clearInterval(i)
-btn.innerText="✖"
-btn.disabled=false
-portalLock=false
-}
-},1000)
-})
+fetch("/add_player",{method:"POST",credentials:"include"});
 }
 
 function sendMove(dir){
@@ -367,10 +230,6 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify({direction:dir})
 })
 }
-
-setInterval(()=>{
-fetch("/api/heartbeat",{method:"POST",credentials:"include"})
-},5000)
 
 </script>
 
