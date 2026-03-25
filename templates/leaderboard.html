@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Leaderboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+    color:white;
+}
+
+/* header */
+.header{
+    text-align:center;
+    padding:20px;
+    border-bottom:1px solid rgba(0,255,200,0.3);
+}
+.header h2{
+    color:#00ffc3;
+    text-shadow:0 0 10px #00ffc3;
+}
+
+/* table */
+.table-box{
+    width:90%;
+    max-width:800px;
+    margin:30px auto;
+    background:rgba(0,0,0,0.4);
+    border-radius:12px;
+    border:1px solid #00ffc3;
+    overflow:hidden;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#00ffc3;
+    color:black;
+}
+
+tr:nth-child(even){
+    background:rgba(255,255,255,0.05);
+}
+
+/* rank highlight */
+.top1{color:gold;}
+.top2{color:silver;}
+.top3{color:#cd7f32;}
+
+/* back button */
+.back-btn{
+    display:block;
+    margin:20px auto;
+    width:200px;
+    text-align:center;
+    padding:12px;
+    border-radius:10px;
+    background:linear-gradient(45deg,#ff3b3b,#ff8800);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    box-shadow:0 0 15px rgba(255,100,0,0.5);
+}
+
+.back-btn:hover{
+    transform:scale(1.05);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>🏆 TOP 20 LEADERBOARD</h2>
+</div>
+
+<div class="table-box">
+<table>
+<tr>
+    <th># Rank</th>
+    <th>Name</th>
+    <th>Player ID</th>
+    <th>Points</th>
+</tr>
+
+{% for user in data[:20] %}
+<tr>
+    <td class="
+        {% if loop.index == 1 %}top1
+        {% elif loop.index == 2 %}top2
+        {% elif loop.index == 3 %}top3
+        {% endif %}
+    ">
+        {{loop.index}}
+    </td>
+    <td>{{user[0]}}</td>
+    <td>{{user[1]}}</td>
+    <td>{{user[2]}}</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+<a href="/dashboard" class="back-btn">
+⬅ Back to Dashboard
+</a>
+
+</body>
+</html>
