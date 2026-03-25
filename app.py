@@ -250,6 +250,13 @@ def init_db():
         player_id TEXT UNIQUE,
         show_panel INTEGER DEFAULT 0,
         blocked INTEGER DEFAULT 0
+         points INTEGER DEFAULT 0,
+        spin_token INTEGER DEFAULT 0,
+        token_id TEXT,
+        token_used INTEGER DEFAULT 0,
+        token_expiry DOUBLE PRECISION DEFAULT 0,
+
+        last_active DOUBLE PRECISION DEFAULT 0
     )
     """)
 
