@@ -888,6 +888,21 @@ def online_status():
         })
 
     return jsonify(result)
+@app.route("/admin_delete_user/<int:user_id>")
+@admin_required
+def admin_delete_user(user_id):
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # ❌ user delete from database
+    c.execute("DELETE FROM users WHERE id=%s", (user_id,))
+    conn.commit()
+    conn.close()
+
+    print("❌ USER DELETED:", user_id)
+
+    return redirect("/admin")
 @app.route("/api/heartbeat", methods=["POST"])
 def heartbeat():
 
