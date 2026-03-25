@@ -1127,12 +1127,143 @@ def reset_password():
         return "Password updated ✅ <br><a href='/login'>Login</a>"
 
     return render_template("reset_password.html")
+ad_sessions = {}
+last_ad_watch = {}
+
+@app.route("/start_ad", methods=["POST"])
+def start_ad():
+    if "player_id" not in session:
+        return jsonify({"status":"error"})
+
+    data = request.get_json()
+    duration = data.get("duration")
+
+    ad_sessions[session["player_id"]] = {
+        "start": time.time(),
+        "duration": duration
+    }
+
+    return jsonify({"status":"ok"})
+@app.route("/watch_ad", methods=["POST"])
+def watch_ad():
+
+    if "player_id" not in session:
+        return jsonify({"status":"error"})
+
+    pid = session["player_id"]
+    ad = ad_sessions.get(pid)
+
+    if not ad:
+        return jsonify({"status":"invalid"})
+
+    watched = time.time() - ad["start"]
+
+    if watched < ad["duration"] - 3:
+        return jsonify({"status":"cheat"})
+
+    # 🎯 points
+    points = 50 if ad["duration"] == 30 else 120
+
+    update_points(pid, points)
+
+    ad_sessions.pop(pid)
+
+    return jsonify({"status":"ok","points":points})
+@app.route("/use_token", methods=["POST"])
+@admin_required
+def use_token():
+
+    token = request.form["token"]
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT player_id FROM users WHERE token_id=%s",(token,))
+    user = c.fetchone()
+
+    if not user:
+        return "Invalid ❌"
+
+    c.execute("""
+    UPDATE users SET token_used=1, spin_token=0, token_id=NULL
+    WHERE player_id=%s
+    """,(user[0],))
+
+    conn.commit()
+    conn.close()
+
+    return "Token Used ✅"
+@app.route("/leaderboard")
+def leaderboard():
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT name,player_id,points FROM users ORDER BY points DESC LIMIT 50")
+    data = c.fetchall()
+
+    conn.close()
+
+    return render_template("leaderboard.html", data=data)
+@app.route("/claim_token", methods=["POST"])
+def claim_token():
+
+    pid = session["player_id"]
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT spin_token, token_id FROM users WHERE player_id=%s",(pid,))
+    u = c.fetchone()
+
+    if u[0] == 0:
+        return jsonify({"status":"no_token"})
+
+    c.execute("UPDATE users SET points=0 WHERE player_id=%s",(pid,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status":"ok","token":u[1]})
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
     session.pop("admin", None)
     return redirect("/admin_login")
 init_db()
+def update_points(pid, add):
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT points, spin_token FROM users WHERE player_id=%s",(pid,))
+    p = c.fetchone()
+
+    points = p[0] + add
+    token = p[1]
+
+    # 🎯 token create
+    if points >= 10000 and token == 0:
+        token = 1
+        token_id = str(random.randint(100000,999999))
+        expiry = time.time() + (60*60*24*21)
+
+        c.execute("""
+        UPDATE users 
+        SET spin_token=1, token_id=%s, token_expiry=%s
+        WHERE player_id=%s
+        """,(token_id,expiry,pid))
+
+    # ❌ dilute
+    if points >= 10100 and token == 1:
+        c.execute("""
+        UPDATE users SET spin_token=0, token_id=NULL
+        WHERE player_id=%s
+        """,(pid,))
+
+    c.execute("UPDATE users SET points=%s WHERE player_id=%s",(points,pid))
+
+    conn.commit()
+    conn.close()
 if __name__ =="__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
