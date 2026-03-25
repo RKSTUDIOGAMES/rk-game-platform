@@ -70,7 +70,7 @@ iframe{
     display:flex;
     justify-content:space-between;
     padding:0 10px;
-    pointer-events:none;
+    pointer-events:auto; /* FIXED */
 }
 
 .dpad{
@@ -97,7 +97,6 @@ iframe{
     backdrop-filter:blur(10px);
     transition:0.2s;
     box-shadow:0 0 10px rgba(0,255,200,0.3);
-    pointer-events:auto;
 }
 .btn:hover{
     transform:scale(1.1);
@@ -135,6 +134,20 @@ iframe{
     justify-content:center;
     align-items:center;
     z-index:9999;
+}
+
+/* logout */
+.logout{
+    text-align:center;
+    margin:30px;
+}
+.logout a{
+    color:#d633ff;
+    text-decoration:none;
+    text-shadow:0 0 8px #d633ff;
+}
+.logout a:hover{
+    text-shadow:0 0 15px #ff66ff;
 }
 </style>
 </head>
@@ -176,6 +189,10 @@ Player ID: <b>{{player_id}}</b>
 <div id="delayTimer"></div>
 
 <button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
+
+<div class="logout">
+<a href="/logout" onclick="logoutWithAd(event)">Logout</a>
+</div>
 
 <script>
 
@@ -231,7 +248,40 @@ body:JSON.stringify({direction:dir})
 })
 }
 
+// 🔥 AD POPUP
+function showAdPopup(callback){
+let ad=document.getElementById("adPopup")
+ad.style.display="flex"
+
+setTimeout(()=>{
+closeAd()
+if(callback) callback()
+},3000)
+}
+
+function closeAd(){
+document.getElementById("adPopup").style.display="none"
+}
+
+// 🔥 LOGOUT WITH AD
+function logoutWithAd(e){
+e.preventDefault()
+
+showAdPopup(()=>{
+window.location.href="/logout"
+})
+}
+
 </script>
+
+<!-- POPUP AD -->
+<div id="adPopup">
+    <div style="background:#111; padding:20px; border-radius:12px; text-align:center;">
+        <p>🎁 Reward Loading...</p>
+        <p>Ad running... ⏳</p>
+        <button onclick="closeAd()">Skip</button>
+    </div>
+</div>
 
 </body>
 </html>
