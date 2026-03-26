@@ -54,13 +54,10 @@ body{
     border:1px solid #00ffc3;
     color:#00ffc3;
     text-decoration:none;
-    transition:0.3s;
-    cursor:pointer;
 }
 .btn:hover{
     background:#00ffc3;
     color:black;
-    box-shadow:0 0 15px #00ffc3;
 }
 
 /* SECTION */
@@ -72,28 +69,57 @@ body{
     border-radius:15px;
     background:rgba(255,255,255,0.05);
     backdrop-filter:blur(10px);
-    border:1px solid rgba(0,255,200,0.2);
 }
 
-/* PLAYER */
-.player{
-    display:flex;
-    justify-content:space-between;
-    padding:10px;
-    border-bottom:1px solid rgba(255,255,255,0.1);
+/* TABLE (Leaderboard same) */
+.table-box{
+    width:100%;
+    margin-top:20px;
+    border-radius:12px;
+    border:1px solid #00ffc3;
+    overflow:hidden;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th, td{
+    padding:12px;
+    text-align:center;
+}
+th{
+    background:#00ffc3;
+    color:black;
+}
+tr:nth-child(even){
+    background:rgba(255,255,255,0.05);
+}
+.top1{color:gold;}
+.top2{color:silver;}
+.top3{color:#cd7f32;}
+
+/* HOF CARDS */
+.card{
+    display:inline-block;
+    margin:15px;
+    padding:20px;
+    border:1px solid cyan;
+    border-radius:10px;
+    text-align:center;
+}
+.card img{
+    width:70px;
+    height:70px;
+    border-radius:50%;
 }
 
 /* ADS */
 .ad{
     width:92%;
-    max-width:900px;
     margin:25px auto;
     padding:25px;
     text-align:center;
     border:2px dashed #00ffc3;
-    border-radius:10px;
-    color:#00ffc3;
-    font-size:18px;
 }
 
 /* FOOTER */
@@ -105,25 +131,20 @@ body{
 }
 .footer a{
     color:#00ffc3;
-    margin:5px;
-    text-decoration:none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 📢 ANNOUNCEMENT -->
 <div class="announcement">
 <span>📢 {{announcement}}</span>
 </div>
 
-<!-- 🎮 HEADER -->
 <div class="header">
 <h1>🎮 RK GAMES</h1>
 </div>
 
-<!-- 🔘 BUTTONS -->
 <div class="top-buttons">
 
 {% if logged_in %}
@@ -138,164 +159,96 @@ body{
 
 </div>
 
-<!-- 🏆 LEADERBOARD -->
+<!-- 🏆 LEADERBOARD (SAME DESIGN) -->
 <div class="section">
-<h3>🏆 Top Players</h3>
+<h3>🏆 Leaderboard</h3>
 
-{% if top %}
-    {% for u in top %}
-    <div class="player">
-        <span style="
-        {% if loop.index == 1 %}color:gold;
-        {% elif loop.index == 2 %}color:silver;
-        {% elif loop.index == 3 %}color:#cd7f32;
-        {% endif %}
-        ">
-        #{{loop.index}} {{u[0]}}
-        </span>
-        <span>🔥 {{u[2]}} pts</span>
-    </div>
-    {% endfor %}
-{% else %}
-<p style="text-align:center;color:#888;">No players yet</p>
+<div class="table-box">
+<table>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>ID</th>
+<th>Points</th>
+</tr>
+
+{% for user in top %}
+<tr>
+<td class="
+{% if loop.index==1 %}top1
+{% elif loop.index==2 %}top2
+{% elif loop.index==3 %}top3
 {% endif %}
+">
+{{loop.index}}
+</td>
 
+<td>{{user[0]}}</td>
+
+<td>
+<img src="https://unavatar.io/youtube/{{user[1]}}"
+style="width:30px;height:30px;border-radius:50%;margin-right:6px;"
+onerror="this.src='https://via.placeholder.com/30'">
+{{user[1]}}
+</td>
+
+<td>{{user[2]}}</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
 </div>
 
-<!-- 💰 AD -->
-<div class="ad">🔥 Ad Space (Google AdSense)</div>
+<div class="ad">🔥 Ad Space</div>
 
-<!-- 🌟 HOF -->
+<!-- 🌟 HALL OF FAME (SAME DESIGN) -->
 <div class="section">
 <h3>🌟 Hall of Fame</h3>
 
-{% if hof %}
-    {% for u in hof %}
-    <div class="player">
-        <span>{{u[0]}}</span>
-        <span>🏅 {{u[2]}} pts</span>
-    </div>
-    {% endfor %}
-{% else %}
-<p style="text-align:center;color:#888;">No Hall of Fame players</p>
-{% endif %}
+{% for u in hof %}
+<div class="card">
 
-</div>
-
-<!-- 💰 AD -->
-<div class="ad">🔥 Ad Space</div>
-
-<!-- 🎯 EARN -->
-<div class="section" style="text-align:center;">
-<h3>🎯 Earn Points</h3>
-<p>Dashboard ke Earn Points button se points kamao</p>
-
-{% if logged_in %}
-<button onclick="startAd(30)" class="btn">Watch 30s Ad</button>
-<button onclick="startAd(60)" class="btn">Watch 60s Ad</button>
-{% else %}
-<p style="color:#ff4d4d;">Login to earn points</p>
-{% endif %}
-
-</div>
-
-<!-- 💰 AD -->
-<div class="ad">🔥 Ad Space</div>
-
-<!-- ℹ️ ABOUT -->
-<div class="section">
-<h3>ℹ️ About RK Games</h3>
-
-<p>
-RK Games ek <b>Live Interactive Gaming Platform</b> hai jahan aap YouTube live par entry lekar real-time game khel sakte hain.
-</p>
-
-<p>
-Aapko yahan <b>₹10,000 tak ke rewards</b> jeetne ka mauka milta hai.
-</p>
-
-<p>
-Agar aap game nahi jeet paate, tab bhi aap ads dekhkar <b>points earn</b> kar sakte hain.
-</p>
-
-<p><b>🎯 10,000 Points = 1 Spin Token</b></p>
-
-</div>
-
-<!-- 💰 AD -->
-<div class="ad">🔥 Ad Space</div>
-
-<!-- 🎮 RULES -->
-<div class="section">
-<h3>🎮 Game Rules & Reward System</h3>
-
-<ul style="line-height:1.8;">
-
-<li>Dashboard se earn points karo</li>
-<li>10,000 points par claim button unlock hota hai</li>
-<li>Claim karne par spin token milta hai</li>
-<li>Claim na karo to leaderboard me top rahoge</li>
-<li>7 din me live aakar token comment karna zaruri hai</li>
-<li>Nahi kiya to token + points dono chale jayenge</li>
-<li>Ek mobile = ek ID</li>
-<li>Multiple ID → permanent ban</li>
-<li>Live interaction → bonus points mil sakte hain</li>
-
-</ul>
-
-</div>
-
-<!-- 💰 AD -->
-<div class="ad">🔥 Ad Space</div>
-
-<!-- ❓ FAQ -->
-<div class="section">
-<h3>❓ FAQ</h3>
-
-<p><b>Q:</b> Points kaise milte hain?</p>
-<p><b>A:</b> Ads dekhkar</p>
-
-<p><b>Q:</b> Token kya hai?</p>
-<p><b>A:</b> Reward unlock system</p>
-
-</div>
-
-<!-- 📞 CONTACT -->
-<div class="section">
-<h3>📞 Contact</h3>
-<p>Email: support@rkgames.com</p>
-</div>
-
-<!-- FOOTER -->
-<div class="footer">
-<a href="/privacy">Privacy Policy</a> |
-<a href="/terms">Terms</a> |
-<a href="https://instagram.com" target="_blank">Instagram</a> |
-<a href="https://facebook.com" target="_blank">Facebook</a>
+<img src="https://unavatar.io/youtube/{{u[1]}}" 
+onerror="this.src='https://i.imgur.com/6VBx3io.png'">
 
 <br><br>
+<b>{{u[0]}}</b><br>
+{{u[1]}}<br>
+{{u[2]}} pts
+
+</div>
+{% endfor %}
+
+</div>
+
+<div class="ad">🔥 Ad Space</div>
+
+<!-- EARN -->
+<div class="section" style="text-align:center;">
+<h3>🎯 Earn Points</h3>
+
+{% if logged_in %}
+<button onclick="startAd(30)" class="btn">30s Ad</button>
+<button onclick="startAd(60)" class="btn">60s Ad</button>
+{% else %}
+<p>Login to earn points</p>
+{% endif %}
+
+</div>
+
+<div class="footer">
 © 2026 RK Games
 </div>
 
 <script>
 function startAd(sec){
-
-    let btns = document.querySelectorAll("button");
-    btns.forEach(b => b.disabled = true);
-
-    fetch("/start_ad",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({duration:sec})
-    })
-    .then(()=>{
-        alert("Ad Started "+sec+" sec");
-
-        setTimeout(()=>{
-            btns.forEach(b => b.disabled = false);
-        }, 5000);
-
-    });
+fetch("/start_ad",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({duration:sec})
+})
+.then(()=>alert("Ad Started"));
 }
 </script>
 
