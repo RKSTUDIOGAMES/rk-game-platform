@@ -285,6 +285,12 @@ iframe{
     🎁 Tokens Left<br>
     <b>{{tokens_left}} / 3</b>
 </div>
+
+    <div class="stat-box">
+        📊 Rank<br>
+        <b>#{{rank}}</b>
+    </div>
+</div>
 {% if tokens_left == 1 %}
 <div class="warning-box">
     🚨 LAST TOKEN LEFT – HURRY!
@@ -294,11 +300,6 @@ iframe{
     ❌ ALL TOKENS CLAIMED
 </div>
 {% endif %}
-    <div class="stat-box">
-        📊 Rank<br>
-        <b>#{{rank}}</b>
-    </div>
-</div>
 <div class="info">
 Welcome <b>{{name}}</b><br>
 Player ID: <b>{{player_id}}</b>
