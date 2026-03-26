@@ -189,7 +189,9 @@ power_queue = []
 move_queue = []
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")   # strong password rakho
 
@@ -1454,14 +1456,25 @@ def use_token():
     conn = get_db()
     c = conn.cursor()
 
-    c.execute("SELECT player_id FROM users WHERE token_id=%s",(token,))
+    c.execute("""
+    SELECT player_id, token_used 
+    FROM users 
+    WHERE token_id=%s
+    """,(token,))
+    
     user = c.fetchone()
 
     if not user:
+        conn.close()
         return "Invalid ❌"
 
+    if user[1] == 1:
+        conn.close()
+        return "Already Used ❌"
+
     c.execute("""
-    UPDATE users SET token_used=1, spin_token=0, token_id=NULL
+    UPDATE users 
+    SET token_used=1, spin_token=0, token_id=NULL
     WHERE player_id=%s
     """,(user[0],))
 
@@ -1484,27 +1497,52 @@ def leaderboard():
 @app.route("/claim_token", methods=["POST"])
 def claim_token():
 
+    if "player_id" not in session:
+        return jsonify({"status":"login_required"})
+
     pid = session["player_id"]
 
     conn = get_db()
     c = conn.cursor()
 
-    c.execute("SELECT spin_token, token_id FROM users WHERE player_id=%s",(pid,))
+    c.execute("""
+    SELECT spin_token, token_id, token_expiry 
+    FROM users 
+    WHERE player_id=%s
+    """,(pid,))
+
     u = c.fetchone()
 
-    if not u or u[0] == 0 or u[1] is None:
+    if not u or u[0] != 1 or not u[1]:
+        conn.close()
         return jsonify({"status":"no_token"})
 
+    # expiry check
+    if u[2] and time.time() > u[2]:
+        c.execute("""
+        UPDATE users SET points=0, spin_token=0, token_id=0
+        WHERE player_id=%s
+        """,(pid,))
+        conn.commit()
+        conn.close()
+        return jsonify({"status":"expired"})
+
+    token = u[1]
+
+    # reset points
     c.execute("""
     UPDATE users 
-    SET points=0, token_used=1, token_id=NULL
+    SET points=0, spin_token=0
     WHERE player_id=%s
     """,(pid,))
 
     conn.commit()
     conn.close()
 
-    return jsonify({"status":"ok","token":u[1]})
+    return jsonify({
+        "status":"ok",
+        "token":token
+    })
 @app.route("/admin/player/<player_id>")
 @admin_required
 def admin_player(player_id):
@@ -1591,7 +1629,12 @@ def update_points(pid, add):
 
     # 🎯 token create
     if new_points >= 10000 and token == 0:
-        token_id = str(random.randint(100000,999999))
+        import secrets, string
+
+        chars = string.ascii_uppercase + string.digits
+        raw = ''.join(secrets.choice(chars) for _ in range(12))
+
+        token_id = f"RK-{raw[0:4]}-{raw[4:8]}-{raw[8:12]}"
         expiry = time.time() + (60*60*24*21)
 
         c.execute("""
@@ -1602,7 +1645,7 @@ def update_points(pid, add):
         token = 1
 
     # ❌ dilute
-    if new_points >= 10100 and token == 1:
+    if new_points >= 11000 and token == 1:
         c.execute("""
         UPDATE users SET spin_token=0, token_id=NULL
         WHERE player_id=%s
