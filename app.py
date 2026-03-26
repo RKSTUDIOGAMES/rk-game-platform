@@ -1548,6 +1548,14 @@ def admin_update_points():
     conn.close()
 
     return redirect(f"/admin/player/{pid}")
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
