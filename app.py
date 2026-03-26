@@ -1475,7 +1475,10 @@ def update_points(pid, add):
         WHERE player_id=%s
         """,(pid,))
 
-    c.execute("UPDATE users SET points=%s WHERE player_id=%s",(points,pid))
+    # ✅ FIXED LINE
+    c.execute("UPDATE users SET points=%s WHERE player_id=%s",(new_points,pid))
+
+    # ✅ history
     c.execute("""
     INSERT INTO points_history (player_id, points, reason, created_at)
     VALUES (%s,%s,%s,%s)
