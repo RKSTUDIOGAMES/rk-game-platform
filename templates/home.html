@@ -41,7 +41,7 @@ body{
     text-shadow:0 0 20px #00ffc3;
 }
 
-/* BUTTONS */
+/* BUTTON */
 .top-buttons{
     display:flex;
     justify-content:center;
@@ -68,23 +68,20 @@ body{
     padding:20px;
     border-radius:15px;
     background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(10px);
 }
 
-/* TABLE (Leaderboard same) */
+/* TABLE */
 .table-box{
-    width:100%;
-    margin-top:20px;
-    border-radius:12px;
     border:1px solid #00ffc3;
+    border-radius:10px;
     overflow:hidden;
 }
 table{
     width:100%;
     border-collapse:collapse;
 }
-th, td{
-    padding:12px;
+th,td{
+    padding:10px;
     text-align:center;
 }
 th{
@@ -98,14 +95,13 @@ tr:nth-child(even){
 .top2{color:silver;}
 .top3{color:#cd7f32;}
 
-/* HOF CARDS */
+/* HOF */
 .card{
     display:inline-block;
     margin:15px;
     padding:20px;
     border:1px solid cyan;
     border-radius:10px;
-    text-align:center;
 }
 .card img{
     width:70px;
@@ -113,7 +109,7 @@ tr:nth-child(even){
     border-radius:50%;
 }
 
-/* ADS */
+/* AD */
 .ad{
     width:92%;
     margin:25px auto;
@@ -126,7 +122,6 @@ tr:nth-child(even){
 .footer{
     text-align:center;
     padding:30px;
-    font-size:13px;
     color:#aaa;
 }
 .footer a{
@@ -157,19 +152,21 @@ tr:nth-child(even){
 <a href="/leaderboard" class="btn">Leaderboard</a>
 <a href="/hall_of_fame" class="btn">Hall of Fame</a>
 
+<!-- 🔥 SOCIAL BUTTONS -->
+<a href="https://facebook.com" target="_blank" class="btn">📘 Facebook</a>
+<a href="https://instagram.com" target="_blank" class="btn">📸 Instagram</a>
+<a href="https://chat.whatsapp.com/your-group-link" target="_blank" class="btn">💬 WhatsApp</a>
+
 </div>
 
-<!-- 🏆 LEADERBOARD (SAME DESIGN) -->
+<!-- 🏆 LEADERBOARD -->
 <div class="section">
 <h3>🏆 Leaderboard</h3>
 
 <div class="table-box">
 <table>
 <tr>
-<th>#</th>
-<th>Name</th>
-<th>ID</th>
-<th>Points</th>
+<th>#</th><th>Name</th><th>ID</th><th>Points</th>
 </tr>
 
 {% for user in top %}
@@ -186,7 +183,7 @@ tr:nth-child(even){
 <td>{{user[0]}}</td>
 
 <td>
-<img src="https://unavatar.io/youtube/{{user[1]}}"
+<img src="https://unavatar.io/youtube/{{user[1]}}" 
 style="width:30px;height:30px;border-radius:50%;margin-right:6px;"
 onerror="this.src='https://via.placeholder.com/30'">
 {{user[1]}}
@@ -202,7 +199,7 @@ onerror="this.src='https://via.placeholder.com/30'">
 
 <div class="ad">🔥 Ad Space</div>
 
-<!-- 🌟 HALL OF FAME (SAME DESIGN) -->
+<!-- 🌟 HOF -->
 <div class="section">
 <h3>🌟 Hall of Fame</h3>
 
@@ -224,7 +221,7 @@ onerror="this.src='https://i.imgur.com/6VBx3io.png'">
 
 <div class="ad">🔥 Ad Space</div>
 
-<!-- EARN -->
+<!-- 🎯 EARN -->
 <div class="section" style="text-align:center;">
 <h3>🎯 Earn Points</h3>
 
@@ -237,8 +234,60 @@ onerror="this.src='https://i.imgur.com/6VBx3io.png'">
 
 </div>
 
+<div class="ad">🔥 Ad Space</div>
+
+<!-- ℹ️ ABOUT -->
+<div class="section">
+<h3>ℹ️ About</h3>
+<p>RK Games ek live interactive platform hai jahan aap YouTube live me entry lekar game khel sakte ho aur ₹10,000 tak jeet sakte ho.</p>
+<p>Game na jeetne par bhi aap ads dekhkar points kama sakte ho.</p>
+<p><b>10,000 points = 1 spin token</b></p>
+</div>
+
+<div class="ad">🔥 Ad Space</div>
+
+<!-- 🎮 RULES -->
+<div class="section">
+<h3>🎮 Rules</h3>
+<ul>
+<li>Dashboard se points earn karo</li>
+<li>10000 points par claim unlock</li>
+<li>Claim karne par token milega</li>
+<li>Claim nahi → leaderboard me top</li>
+<li>7 din me live comment zaruri</li>
+<li>Nahi kiya → token + points loss</li>
+<li>1 mobile = 1 ID</li>
+<li>Multiple ID → permanent ban</li>
+<li>Live interaction → bonus</li>
+</ul>
+</div>
+
+<div class="ad">🔥 Ad Space</div>
+
+<!-- FAQ -->
+<div class="section">
+<h3>❓ FAQ</h3>
+<p><b>Q:</b> Points kaise milte?</p>
+<p><b>A:</b> Ads se</p>
+</div>
+
+<!-- CONTACT -->
+<div class="section">
+<h3>📞 Contact</h3>
+<p>Email: rkgames1921@gmail.com</p>
+</div>
+
 <div class="footer">
+
+<a href="/privacy">Privacy</a> |
+<a href="/terms">Terms</a> |
+<a href="https://facebook.com" target="_blank">Facebook</a> |
+<a href="https://instagram.com" target="_blank">Instagram</a> |
+<a href="https://whatsapp.com/channel/0029VbCAvSmIiRopU8e0YJ0D" target="_blank">WhatsApp</a>
+
+<br><br>
 © 2026 RK Games
+
 </div>
 
 <script>
