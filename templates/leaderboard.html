@@ -106,7 +106,14 @@ tr:nth-child(even){
         {{loop.index}}
     </td>
     <td>{{user[0]}}</td>
-    <td>{{user[1]}}</td>
+    <td>
+    <img 
+        src="https://unavatar.io/youtube/{{user[1]}}" 
+        style="width:35px;height:35px;border-radius:50%;vertical-align:middle;margin-right:8px;"
+        onerror="this.src='https://via.placeholder.com/35'"
+    >
+    {{user[1]}}
+</td>
     <td>{{user[2]}}</td>
 </tr>
 {% endfor %}
