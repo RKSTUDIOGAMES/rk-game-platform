@@ -769,7 +769,10 @@ def dashboard():
         # 🆕 UI VARIABLES
         target=target,
         tokens_left=tokens_left,
-        remaining_target=remaining_target
+        remaining_target=remaining_target,
+        m1=m1,
+        m2=m2,
+        m3=m3,
     )
 @app.route("/admin/add_hof/<player_id>")
 @admin_required
