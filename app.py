@@ -776,6 +776,11 @@ def admin():
         if "reset" in request.form:
             c.execute("UPDATE users SET show_panel=0")
 
+        # 🔥 ANNOUNCEMENT UPDATE (ADDED)
+        if "announcement" in request.form:
+            msg = request.form["announcement"]
+            c.execute("UPDATE announcement SET message=%s WHERE id=1", (msg,))
+
         conn.commit()
 
     # ✅ YAHI PE HONA CHAHIYE
@@ -799,9 +804,19 @@ def admin():
     c.execute("SELECT video_id FROM live_stream WHERE id=1")
     video = c.fetchone()
 
+    # 🔥 ANNOUNCEMENT FETCH (ADDED)
+    c.execute("SELECT message FROM announcement LIMIT 1")
+    ann = c.fetchone()
+
     conn.close()
 
-    return render_template("admin.html", users=users, video_id=video[0], time=time)
+    return render_template(
+        "admin.html",
+        users=users,
+        video_id=video[0],
+        time=time,
+        announcement=ann[0] if ann else ""
+    )
 
 @app.route("/search_player", methods=["POST"])
 @admin_required
