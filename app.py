@@ -343,7 +343,14 @@ def init_db():
         watched_at DOUBLE PRECISION
     )
     """)
-
+    # 🔥 HALL OF FAME TABLE
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS hall_of_fame (
+        id SERIAL PRIMARY KEY,
+        player_id TEXT UNIQUE,
+        added_at DOUBLE PRECISION
+    )
+    """)
     # ✅ DEFAULT ROW
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
@@ -635,7 +642,56 @@ def dashboard():
         remaining=remaining,
         rank=rank
     )
+@app.route("/admin/add_hof/<player_id>")
+@admin_required
+def add_hof(player_id):
+    player_id = player_id.lower()
+    conn = get_db()
+    c = conn.cursor()
 
+    c.execute("""
+    INSERT INTO hall_of_fame (player_id, added_at)
+    VALUES (%s,%s)
+    ON CONFLICT (player_id) DO NOTHING
+    """,(player_id, time.time()))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/admin")
+
+@app.route("/hall_of_fame")
+def hall_of_fame():
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("""
+    SELECT u.name, u.player_id, u.points
+    FROM hall_of_fame h
+    LEFT JOIN users u ON h.player_id = u.player_id
+    WHERE u.player_id IS NOT NULL
+    ORDER BY h.id DESC
+    """)
+
+    data = c.fetchall()
+
+    conn.close()
+
+    return render_template("hall_of_fame.html", data=data)
+@app.route("/admin/remove_hof/<player_id>")
+@admin_required
+def remove_hof(player_id):
+    player_id = player_id.lower()
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("DELETE FROM hall_of_fame WHERE player_id=%s",(player_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/admin")
 @app.route("/logout")
 def logout():
 
