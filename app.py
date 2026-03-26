@@ -367,6 +367,27 @@ def init_db():
         added_at DOUBLE PRECISION
     )
     """)
+    # 🆕 BASE POINT (personal start)
+    c.execute("""
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS base_points INTEGER DEFAULT 0
+    """)
+
+    # 🆕 milestone tracking
+    c.execute("""
+    ALTER TABLE game_state
+    ADD COLUMN IF NOT EXISTS m1_claimed INTEGER DEFAULT 0
+    """)
+
+    c.execute("""
+    ALTER TABLE game_state
+    ADD COLUMN IF NOT EXISTS m2_claimed INTEGER DEFAULT 0
+    """)
+
+    c.execute("""
+    ALTER TABLE game_state
+    ADD COLUMN IF NOT EXISTS m3_claimed INTEGER DEFAULT 0
+    """)
     c.execute("""
     CREATE TABLE IF NOT EXISTS game_state (
         id SERIAL PRIMARY KEY,
@@ -496,23 +517,30 @@ def check_cycle():
     conn = get_db()
     c = conn.cursor()
 
-    c.execute("SELECT current_target, tokens_given, cycle_start FROM game_state WHERE id=1")
-    target, tokens, start = c.fetchone()
+    # 🔥 get current cycle start
+    c.execute("SELECT cycle_start FROM game_state WHERE id=1")
+    start = c.fetchone()[0]
 
     # 10 days = 864000 sec
     if time.time() - start > 864000:
 
-        new_target = target + 336  # increase difficulty
-
+        # 🔥 RESET MILESTONES (3 tokens system)
         c.execute("""
         UPDATE game_state
-        SET current_target=%s,
-            tokens_given=0,
+        SET m1_claimed=0,
+            m2_claimed=0,
+            m3_claimed=0,
             cycle_start=%s
         WHERE id=1
-        """, (new_target, time.time()))
+        """, (time.time(),))
 
-        print("🔥 NEW CYCLE STARTED")
+        # 🔥 IMPORTANT: har player ka base reset karo
+        c.execute("""
+        UPDATE users 
+        SET base_points = points
+        """)
+
+        print("🔥 NEW CYCLE STARTED (MILESTONE SYSTEM RESET)")
 
     conn.commit()
     conn.close()
@@ -1559,42 +1587,48 @@ def claim_token():
 
     pid = session["player_id"]
 
-    check_cycle()  # 🔥 IMPORTANT
-
     conn = get_db()
     c = conn.cursor()
 
-    # global state
-    c.execute("SELECT current_target, tokens_given FROM game_state WHERE id=1")
-    row = c.fetchone()
-    target = row[0] if row else 168
-    tokens = row[1] if row else 0
+    # 🔥 get game state
+    c.execute("""
+    SELECT m1_claimed, m2_claimed, m3_claimed 
+    FROM game_state WHERE id=1
+    """)
+    m1, m2, m3 = c.fetchone()
 
-    # user points
-    c.execute("SELECT points FROM users WHERE player_id=%s", (pid,))
-    points = c.fetchone()[0]
+    # 🔥 user points + base
+    c.execute("""
+    SELECT points, base_points 
+    FROM users WHERE player_id=%s
+    """,(pid,))
+    points, base = c.fetchone()
 
-    # ❌ all tokens gone
-    if tokens >= 3:
+    # 🎯 targets
+    t1 = base + 168
+    t2 = base + 504
+    t3 = base + 1008
+
+    # ❌ LEVEL 1
+    if points >= t1 and m1 == 0:
+        c.execute("UPDATE game_state SET m1_claimed=1 WHERE id=1")
+
+    # ❌ LEVEL 2
+    elif points >= t2 and m2 == 0:
+        c.execute("UPDATE game_state SET m2_claimed=1 WHERE id=1")
+
+    # ❌ LEVEL 3
+    elif points >= t3 and m3 == 0:
+        c.execute("UPDATE game_state SET m3_claimed=1 WHERE id=1")
+
+    else:
         conn.close()
-        return jsonify({"status":"sold_out"})
+        return jsonify({"status":"not_reached"})
 
-    # ❌ not reached target
-    if points < target:
-        conn.close()
-        return jsonify({"status":"not_reached","target":target})
-
-    # ✅ WINNER
+    # ✅ WIN
     token_code = "WIN-" + str(random.randint(10000,99999))
 
-    c.execute("""
-    UPDATE users SET points=0 WHERE player_id=%s
-    """, (pid,))
-
-    c.execute("""
-    UPDATE game_state SET tokens_given = tokens_given + 1
-    WHERE id=1
-    """)
+    c.execute("UPDATE users SET points=0 WHERE player_id=%s",(pid,))
 
     conn.commit()
     conn.close()
