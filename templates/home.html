@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RK Games</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family:'Orbitron', sans-serif;
+    background: radial-gradient(circle at top,#0f2027,#000);
+    color:white;
+}
+
+/* ANNOUNCEMENT */
+.announcement{
+    background:linear-gradient(90deg,#00ffc3,#00aaff);
+    color:black;
+    padding:10px;
+    overflow:hidden;
+}
+.announcement span{
+    display:inline-block;
+    white-space:nowrap;
+    animation:scroll 12s linear infinite;
+}
+@keyframes scroll{
+    from{transform:translateX(100%);}
+    to{transform:translateX(-100%);}
+}
+
+/* HEADER */
+.header{
+    text-align:center;
+    padding:20px;
+}
+.header h1{
+    color:#00ffc3;
+    text-shadow:0 0 20px #00ffc3;
+}
+
+/* BUTTONS */
+.top-buttons{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+.btn{
+    padding:12px 18px;
+    border-radius:10px;
+    border:1px solid #00ffc3;
+    color:#00ffc3;
+    text-decoration:none;
+    transition:0.3s;
+}
+.btn:hover{
+    background:#00ffc3;
+    color:black;
+    box-shadow:0 0 15px #00ffc3;
+}
+
+/* SECTION */
+.section{
+    width:92%;
+    max-width:1000px;
+    margin:25px auto;
+    padding:20px;
+    border-radius:15px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(0,255,200,0.2);
+}
+
+/* PLAYER */
+.player{
+    display:flex;
+    justify-content:space-between;
+    padding:10px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+/* ADS */
+.ad{
+    width:92%;
+    max-width:900px;
+    margin:25px auto;
+    padding:20px;
+    text-align:center;
+    border:2px dashed #00ffc3;
+    border-radius:10px;
+    color:#00ffc3;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    padding:30px;
+    font-size:13px;
+    color:#aaa;
+}
+.footer a{
+    color:#00ffc3;
+    margin:5px;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 📢 ANNOUNCEMENT -->
+<div class="announcement">
+<span>📢 {{announcement}}</span>
+</div>
+
+<!-- 🎮 HEADER -->
+<div class="header">
+<h1>🎮 RK GAMES</h1>
+</div>
+
+<!-- 🔘 BUTTONS -->
+<div class="top-buttons">
+
+{% if logged_in %}
+<a href="/dashboard" class="btn">Dashboard</a>
+{% else %}
+<a href="/login" class="btn">Login</a>
+<a href="/signup" class="btn">Signup</a>
+{% endif %}
+
+<a href="/leaderboard" class="btn">Leaderboard</a>
+<a href="/hall_of_fame" class="btn">Hall of Fame</a>
+
+</div>
+
+<!-- 🏆 LEADERBOARD -->
+<div class="section">
+<h3>🏆 Top Players</h3>
+{% for u in top %}
+<div class="player">
+<span>#{{loop.index}} {{u[0]}}</span>
+<span>🔥 {{u[2]}} pts</span>
+</div>
+{% endfor %}
+</div>
+
+<!-- 💰 AD -->
+<div class="ad">Advertisement Space</div>
+
+<!-- 🌟 HOF -->
+<div class="section">
+<h3>🌟 Hall of Fame</h3>
+{% for u in hof %}
+<div class="player">
+<span>{{u[0]}}</span>
+<span>🏅 {{u[2]}} pts</span>
+</div>
+{% endfor %}
+</div>
+
+<!-- 💰 AD -->
+<div class="ad">Advertisement Space</div>
+
+<!-- 🎯 EARN -->
+<div class="section" style="text-align:center;">
+<h3>🎯 Earn Points</h3>
+<p>Dashboard ke Earn Points button se points kamao</p>
+<button onclick="startAd(30)" class="btn">Watch 30s Ad</button>
+<button onclick="startAd(60)" class="btn">Watch 60s Ad</button>
+</div>
+
+<!-- 💰 AD -->
+<div class="ad">Advertisement Space</div>
+
+<!-- ℹ️ ABOUT -->
+<div class="section">
+<h3>ℹ️ About RK Games</h3>
+
+<p>
+RK Games ek <b>Live Interactive Gaming Platform</b> hai jahan aap YouTube live par entry lekar real-time game khel sakte hain.
+</p>
+
+<p>
+Aapko yahan <b>₹10,000 tak ke rewards</b> jeetne ka mauka milta hai.
+</p>
+
+<p>
+Agar aap game nahi jeet paate, tab bhi aap ads dekhkar <b>points earn</b> kar sakte hain.
+</p>
+
+<p>
+🎯 <b>10,000 Points = 1 Spin Token</b>
+</p>
+
+<p style="color:#00ffc3;">
+✔ Fair Gameplay | ✔ Real Rewards | ✔ Transparent System
+</p>
+
+<div style="text-align:center;margin-top:15px;">
+<a href="/login" class="btn">🚀 Start Playing Now</a>
+</div>
+
+</div>
+
+<!-- 💰 AD -->
+<div class="ad">Advertisement Space</div>
+
+<!-- 🎮 RULES -->
+<div class="section">
+<h3>🎮 Game Rules & Reward System</h3>
+
+<ul style="line-height:1.8;">
+
+<li><b>Earn Points:</b> Dashboard ke Earn Points button se points kamao</li>
+
+<li><b>10,000 Points:</b> Claim button unlock hoga, use karna mat bhulna</li>
+
+<li><b>Token:</b> Claim karne par spin token milega</li>
+
+<li><b>Choice:</b> Claim karo ya leaderboard me top par raho</li>
+
+<li><b>Leaderboard:</b> Claim nahi kiya to points badhte rahenge</li>
+
+<li><b>Live Rule:</b> 7 din me live aakar token comment karna zaruri hai</li>
+
+<li><b>Penalty:</b> Live me comment nahi kiya to token aur points dono chale jayenge</li>
+
+<li><b>One Account:</b> Ek mobile se ek hi ID allowed</li>
+
+<li><b>Bonus:</b> Live me active rehne par bonus points mil sakte hain</li>
+
+</ul>
+
+<p style="color:#00ffc3;">
+✔ Fair Gameplay | ✔ Transparent System
+</p>
+
+</div>
+
+<!-- 💰 AD -->
+<div class="ad">Advertisement Space</div>
+
+<!-- ❓ FAQ -->
+<div class="section">
+<h3>❓ FAQ</h3>
+<p><b>Q:</b> Points kaise milte hain?</p>
+<p><b>A:</b> Ads dekhkar</p>
+
+<p><b>Q:</b> Token kya hai?</p>
+<p><b>A:</b> Reward unlock system</p>
+</div>
+
+<!-- 💰 AD -->
+<div class="ad">Advertisement Space</div>
+
+<!-- 📞 CONTACT -->
+<div class="section">
+<h3>📞 Contact</h3>
+<p>Email: support@rkgames.com</p>
+<p>WhatsApp: Coming Soon</p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+<a href="#">Privacy Policy</a> |
+<a href="#">Terms</a> |
+<a href="#">Instagram</a> |
+<a href="#">Facebook</a>
+<br><br>
+© 2026 RK Games
+</div>
+
+<script>
+function startAd(sec){
+    fetch("/start_ad",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({duration:sec})
+    })
+    .then(()=>alert("Ad Started "+sec+" sec"))
+}
+</script>
+
+</body>
+</html>
