@@ -367,7 +367,22 @@ def init_db():
         added_at DOUBLE PRECISION
     )
     """)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS game_state (
+        id SERIAL PRIMARY KEY,
+        current_target INTEGER,
+        tokens_given INTEGER,
+        cycle_start DOUBLE PRECISION
+    )
+""")
 
+    # default row
+    c.execute("SELECT * FROM game_state WHERE id=1")
+    if not c.fetchone():
+        c.execute("""
+        INSERT INTO game_state (id, current_target, tokens_given, cycle_start)
+        VALUES (1, 168, 0, %s)
+        """, (time.time(),))
     # ✅ DEFAULT ROW
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
@@ -476,6 +491,31 @@ def signup():
         return redirect("/login")
 
     return render_template("signup.html")
+def check_cycle():
+
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT current_target, tokens_given, cycle_start FROM game_state WHERE id=1")
+    target, tokens, start = c.fetchone()
+
+    # 10 days = 864000 sec
+    if time.time() - start > 864000:
+
+        new_target = target + 336  # increase difficulty
+
+        c.execute("""
+        UPDATE game_state
+        SET current_target=%s,
+            tokens_given=0,
+            cycle_start=%s
+        WHERE id=1
+        """, (new_target, time.time()))
+
+        print("🔥 NEW CYCLE STARTED")
+
+    conn.commit()
+    conn.close()
 @app.route("/give_new_power", methods=["POST"])
 def give_new_power():
 
@@ -637,10 +677,21 @@ def dashboard():
     p = c.fetchone()
     points = p[0] if p else 0
 
-    # 🎯 REMAINING
+    # 🎯 REMAINING (OLD SYSTEM - untouched)
     remaining = 10000 - points
     if remaining < 0:
         remaining = 0
+
+    # 🆕 🔥 GAME STATE (NEW SYSTEM ADD)
+    c.execute("SELECT current_target, tokens_given FROM game_state WHERE id=1")
+    g = c.fetchone()
+
+    target = g[0] if g else 168
+    tokens_left = 3 - g[1] if g else 3
+
+    remaining_target = target - points
+    if remaining_target < 0:
+        remaining_target = 0
 
     # 📊 RANK
     c.execute("""
@@ -658,9 +709,14 @@ def dashboard():
         video_id=video[0],
         controller_enable=controller_enable,
         points=points,
-        remaining=remaining,
+        remaining=remaining,                 # OLD (safe)
         rank=rank,
-        danger_limit=11000
+        danger_limit=11000,
+
+        # 🆕 NEW VARIABLES (UI ke liye)
+        target=target,
+        tokens_left=tokens_left,
+        remaining_target=remaining_target
     )
 @app.route("/admin/add_hof/<player_id>")
 @admin_required
@@ -1503,48 +1559,47 @@ def claim_token():
 
     pid = session["player_id"]
 
+    check_cycle()  # 🔥 IMPORTANT
+
     conn = get_db()
     c = conn.cursor()
 
-    c.execute("""
-    SELECT spin_token, token_id, token_expiry 
-    FROM users 
-    WHERE player_id=%s
-    """,(pid,))
+    # global state
+    c.execute("SELECT current_target, tokens_given FROM game_state WHERE id=1")
+    target, tokens = c.fetchone()
 
-    u = c.fetchone()
+    # user points
+    c.execute("SELECT points FROM users WHERE player_id=%s", (pid,))
+    points = c.fetchone()[0]
 
-    # ❌ no token
-    if not u or u[0] != 1 or not u[1]:
+    # ❌ all tokens gone
+    if tokens >= 3:
         conn.close()
-        return jsonify({"status":"no_token"})
+        return jsonify({"status":"sold_out"})
 
-    # ⏳ expiry check
-    if u[2] and time.time() > u[2]:
-        c.execute("""
-        UPDATE users 
-        SET points=0, spin_token=0, token_id=NULL
-        WHERE player_id=%s
-        """,(pid,))
-        conn.commit()
+    # ❌ not reached target
+    if points < target:
         conn.close()
-        return jsonify({"status":"expired"})
+        return jsonify({"status":"not_reached","target":target})
 
-    token = u[1]
+    # ✅ WINNER
+    token_code = "WIN-" + str(random.randint(10000,99999))
 
-    # ✅ claim → reset everything properly
     c.execute("""
-    UPDATE users 
-    SET points=0, spin_token=0, token_id=NULL
-    WHERE player_id=%s
-    """,(pid,))
+    UPDATE users SET points=0 WHERE player_id=%s
+    """, (pid,))
+
+    c.execute("""
+    UPDATE game_state SET tokens_given = tokens_given + 1
+    WHERE id=1
+    """)
 
     conn.commit()
     conn.close()
 
     return jsonify({
-        "status":"ok",
-        "token":token
+        "status":"winner",
+        "token":token_code
     })
 @app.route("/admin/player/<player_id>")
 @admin_required
