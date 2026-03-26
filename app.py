@@ -1624,16 +1624,15 @@ def update_points(pid, add):
     c = conn.cursor()
 
     c.execute("SELECT points FROM users WHERE player_id=%s",(pid,))
-    p = c.fetchone()
+    current_points = c.fetchone()[0]
 
-    current_points = p[0]
     new_points = current_points + add
 
-    # 🧠 block system (हर 10000 पर)
+    # 🧠 block system
     current_block = current_points // 10000
     new_block = new_points // 10000
 
-    # 🎯 NEW TOKEN GENERATE (हर 10000 cross पर)
+    # 🎯 TOKEN GENERATE (10000,20000,30000...)
     if new_block > current_block:
 
         import secrets, string
@@ -1642,8 +1641,6 @@ def update_points(pid, add):
         raw = ''.join(secrets.choice(chars) for _ in range(12))
 
         token_id = f"RK-{raw[0:4]}-{raw[4:8]}-{raw[8:12]}"
-
-        # ⏳ expiry 11000 तक valid रहेगा
         expiry = time.time() + (60*60*24*21)
 
         c.execute("""
@@ -1652,7 +1649,7 @@ def update_points(pid, add):
         WHERE player_id=%s
         """,(token_id,expiry,pid))
 
-    # ❌ UNCLAIMED TOKEN EXPIRE (11000 cross)
+    # ❌ expire after +1000
     if (new_points % 10000) >= 1000:
         c.execute("""
         UPDATE users 
@@ -1660,14 +1657,8 @@ def update_points(pid, add):
         WHERE player_id=%s
         """,(pid,))
 
-    # ✅ UPDATE POINTS
+    # ✅ update points
     c.execute("UPDATE users SET points=%s WHERE player_id=%s",(new_points,pid))
-
-    # 📝 HISTORY
-    c.execute("""
-    INSERT INTO points_history (player_id, points, reason, created_at)
-    VALUES (%s,%s,%s,%s)
-    """,(pid, add, "ad_reward", time.time()))
 
     conn.commit()
     conn.close()
