@@ -367,13 +367,24 @@ def init_db():
         added_at DOUBLE PRECISION
     )
     """)
+
     # 🆕 BASE POINT (personal start)
     c.execute("""
     ALTER TABLE users 
     ADD COLUMN IF NOT EXISTS base_points INTEGER DEFAULT 0
     """)
 
-    # 🆕 milestone tracking
+    # 🔥 IMPORTANT: FIRST CREATE game_state
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS game_state (
+        id SERIAL PRIMARY KEY,
+        current_target INTEGER,
+        tokens_given INTEGER,
+        cycle_start DOUBLE PRECISION
+    )
+    """)
+
+    # 🆕 milestone tracking (AFTER CREATE)
     c.execute("""
     ALTER TABLE game_state
     ADD COLUMN IF NOT EXISTS m1_claimed INTEGER DEFAULT 0
@@ -388,14 +399,6 @@ def init_db():
     ALTER TABLE game_state
     ADD COLUMN IF NOT EXISTS m3_claimed INTEGER DEFAULT 0
     """)
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS game_state (
-        id SERIAL PRIMARY KEY,
-        current_target INTEGER,
-        tokens_given INTEGER,
-        cycle_start DOUBLE PRECISION
-    )
-""")
 
     # default row
     c.execute("SELECT * FROM game_state WHERE id=1")
@@ -404,6 +407,7 @@ def init_db():
         INSERT INTO game_state (id, current_target, tokens_given, cycle_start)
         VALUES (1, 168, 0, %s)
         """, (time.time(),))
+
     # ✅ DEFAULT ROW
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
@@ -411,7 +415,6 @@ def init_db():
 
     conn.commit()
     conn.close()
-
 @app.route("/check_player_id")
 def check_player_id():
 
