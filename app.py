@@ -659,7 +659,7 @@ def dashboard():
         controller_enable=controller_enable,
         points=points,
         remaining=remaining,
-        rank=rank
+        rank=rank,
         danger_limit=11000
     )
 @app.route("/admin/add_hof/<player_id>")
