@@ -237,6 +237,26 @@ iframe{
     background:#00ffc3;
     transition:0.3s;
 }
+.warning-box{
+    margin:15px auto;
+    padding:12px;
+    width:90%;
+    max-width:400px;
+    text-align:center;
+    border-radius:10px;
+    background:rgba(255,0,0,0.15);
+    border:1px solid #ff4d4d;
+    color:#ff4d4d;
+    font-weight:bold;
+    box-shadow:0 0 15px rgba(255,0,0,0.4);
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{ box-shadow:0 0 10px rgba(255,0,0,0.3); }
+    50%{ box-shadow:0 0 25px rgba(255,0,0,0.8); }
+    100%{ box-shadow:0 0 10px rgba(255,0,0,0.3); }
+}
 </style>
 </head>
 
@@ -308,6 +328,15 @@ Player ID: <b>{{player_id}}</b>
 
     <p id="timer" style="color:#ffaa00;"></p>
 </div>
+{% if points >= 10500 and points < 11000 %}
+<div class="warning-box">
+    🚨 Danger! Claim NOW before {{danger_limit}}
+</div>
+{% elif points >= 10000 %}
+<div class="warning-box" style="color:#ffaa00;border-color:#ffaa00;">
+    ⚠ Token available – claim soon
+</div>
+{% endif %}
 {% if points >= 10000 %}
 <button class="claim-btn" onclick="claimToken()">
 🎁 Claim Reward Token
