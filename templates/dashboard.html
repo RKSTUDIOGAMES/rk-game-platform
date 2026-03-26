@@ -272,8 +272,18 @@ iframe{
     </div>
 
     <div class="stat-box">
-    🎯 Target<br>
-    <b>{{target}}</b>
+L1: +168<br>
+{% if m1 == 1 %} ❌ {% else %} ✅ {% endif %}
+</div>
+
+<div class="stat-box">
+L2: +504<br>
+{% if m2 == 1 %} ❌ {% else %} ✅ {% endif %}
+</div>
+
+<div class="stat-box">
+L3: +1008<br>
+{% if m3 == 1 %} ❌ {% else %} ✅ {% endif %}
 </div>
 
 <div class="stat-box">
@@ -347,15 +357,28 @@ Player ID: <b>{{player_id}}</b>
 
     <p id="timer" style="color:#ffaa00;"></p>
 </div>
+{% if tokens_left == 1 %}
+<div class="warning-box">
+    🚨 LAST TOKEN LEFT – HURRY!
+</div>
+{% elif tokens_left == 0 %}
+<div class="warning-box">
+    ❌ ALL TOKENS CLAIMED
+</div>
+{% endif %}
+
 {% if points >= 10500 and points < 11000 %}
 <div class="warning-box">
     🚨 Danger! Claim NOW before {{danger_limit}}
 </div>
-{% if remaining_target <= 168 and tokens_left > 0 %}
+{% endif %}
+
+{% if remaining_target <= (target * 0.3) and tokens_left > 0 %}
 <div class="warning-box" style="color:#ffaa00;border-color:#ffaa00;">
     ⚠ Almost there! Claim fast!
 </div>
 {% endif %}
+
 {% if points >= target and tokens_left > 0 %}
 <button class="claim-btn" onclick="claimToken()">
 🎁 CLAIM NOW (FAST!)
