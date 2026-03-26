@@ -24,7 +24,7 @@ body{
 .announcement span{
     display:inline-block;
     white-space:nowrap;
-    animation:scroll 12s linear infinite;
+    animation:scroll 18s linear infinite;
 }
 @keyframes scroll{
     from{transform:translateX(100%);}
@@ -55,6 +55,7 @@ body{
     color:#00ffc3;
     text-decoration:none;
     transition:0.3s;
+    cursor:pointer;
 }
 .btn:hover{
     background:#00ffc3;
@@ -87,11 +88,12 @@ body{
     width:92%;
     max-width:900px;
     margin:25px auto;
-    padding:20px;
+    padding:25px;
     text-align:center;
     border:2px dashed #00ffc3;
     border-radius:10px;
     color:#00ffc3;
+    font-size:18px;
 }
 
 /* FOOTER */
@@ -139,41 +141,66 @@ body{
 <!-- 🏆 LEADERBOARD -->
 <div class="section">
 <h3>🏆 Top Players</h3>
-{% for u in top %}
-<div class="player">
-<span>#{{loop.index}} {{u[0]}}</span>
-<span>🔥 {{u[2]}} pts</span>
-</div>
-{% endfor %}
+
+{% if top %}
+    {% for u in top %}
+    <div class="player">
+        <span style="
+        {% if loop.index == 1 %}color:gold;
+        {% elif loop.index == 2 %}color:silver;
+        {% elif loop.index == 3 %}color:#cd7f32;
+        {% endif %}
+        ">
+        #{{loop.index}} {{u[0]}}
+        </span>
+        <span>🔥 {{u[2]}} pts</span>
+    </div>
+    {% endfor %}
+{% else %}
+<p style="text-align:center;color:#888;">No players yet</p>
+{% endif %}
+
 </div>
 
 <!-- 💰 AD -->
-<div class="ad">Advertisement Space</div>
+<div class="ad">🔥 Ad Space (Google AdSense)</div>
 
 <!-- 🌟 HOF -->
 <div class="section">
 <h3>🌟 Hall of Fame</h3>
-{% for u in hof %}
-<div class="player">
-<span>{{u[0]}}</span>
-<span>🏅 {{u[2]}} pts</span>
-</div>
-{% endfor %}
+
+{% if hof %}
+    {% for u in hof %}
+    <div class="player">
+        <span>{{u[0]}}</span>
+        <span>🏅 {{u[2]}} pts</span>
+    </div>
+    {% endfor %}
+{% else %}
+<p style="text-align:center;color:#888;">No Hall of Fame players</p>
+{% endif %}
+
 </div>
 
 <!-- 💰 AD -->
-<div class="ad">Advertisement Space</div>
+<div class="ad">🔥 Ad Space</div>
 
 <!-- 🎯 EARN -->
 <div class="section" style="text-align:center;">
 <h3>🎯 Earn Points</h3>
 <p>Dashboard ke Earn Points button se points kamao</p>
+
+{% if logged_in %}
 <button onclick="startAd(30)" class="btn">Watch 30s Ad</button>
 <button onclick="startAd(60)" class="btn">Watch 60s Ad</button>
+{% else %}
+<p style="color:#ff4d4d;">Login to earn points</p>
+{% endif %}
+
 </div>
 
 <!-- 💰 AD -->
-<div class="ad">Advertisement Space</div>
+<div class="ad">🔥 Ad Space</div>
 
 <!-- ℹ️ ABOUT -->
 <div class="section">
@@ -191,22 +218,12 @@ Aapko yahan <b>₹10,000 tak ke rewards</b> jeetne ka mauka milta hai.
 Agar aap game nahi jeet paate, tab bhi aap ads dekhkar <b>points earn</b> kar sakte hain.
 </p>
 
-<p>
-🎯 <b>10,000 Points = 1 Spin Token</b>
-</p>
-
-<p style="color:#00ffc3;">
-✔ Fair Gameplay | ✔ Real Rewards | ✔ Transparent System
-</p>
-
-<div style="text-align:center;margin-top:15px;">
-<a href="/login" class="btn">🚀 Start Playing Now</a>
-</div>
+<p><b>🎯 10,000 Points = 1 Spin Token</b></p>
 
 </div>
 
 <!-- 💰 AD -->
-<div class="ad">Advertisement Space</div>
+<div class="ad">🔥 Ad Space</div>
 
 <!-- 🎮 RULES -->
 <div class="section">
@@ -214,73 +231,71 @@ Agar aap game nahi jeet paate, tab bhi aap ads dekhkar <b>points earn</b> kar sa
 
 <ul style="line-height:1.8;">
 
-<li><b>Earn Points:</b> Dashboard ke Earn Points button se points kamao</li>
-
-<li><b>10,000 Points:</b> Claim button unlock hoga, use karna mat bhulna</li>
-
-<li><b>Token:</b> Claim karne par spin token milega</li>
-
-<li><b>Choice:</b> Claim karo ya leaderboard me top par raho</li>
-
-<li><b>Leaderboard:</b> Claim nahi kiya to points badhte rahenge</li>
-
-<li><b>Live Rule:</b> 7 din me live aakar token comment karna zaruri hai</li>
-
-<li><b>Penalty:</b> Live me comment nahi kiya to token aur points dono chale jayenge</li>
-
-<li><b>One Account:</b> Ek mobile se ek hi ID allowed</li>
-
-<li><b>Bonus:</b> Live me active rehne par bonus points mil sakte hain</li>
+<li>Dashboard se earn points karo</li>
+<li>10,000 points par claim button unlock hota hai</li>
+<li>Claim karne par spin token milta hai</li>
+<li>Claim na karo to leaderboard me top rahoge</li>
+<li>7 din me live aakar token comment karna zaruri hai</li>
+<li>Nahi kiya to token + points dono chale jayenge</li>
+<li>Ek mobile = ek ID</li>
+<li>Multiple ID → permanent ban</li>
+<li>Live interaction → bonus points mil sakte hain</li>
 
 </ul>
-
-<p style="color:#00ffc3;">
-✔ Fair Gameplay | ✔ Transparent System
-</p>
 
 </div>
 
 <!-- 💰 AD -->
-<div class="ad">Advertisement Space</div>
+<div class="ad">🔥 Ad Space</div>
 
 <!-- ❓ FAQ -->
 <div class="section">
 <h3>❓ FAQ</h3>
+
 <p><b>Q:</b> Points kaise milte hain?</p>
 <p><b>A:</b> Ads dekhkar</p>
 
 <p><b>Q:</b> Token kya hai?</p>
 <p><b>A:</b> Reward unlock system</p>
-</div>
 
-<!-- 💰 AD -->
-<div class="ad">Advertisement Space</div>
+</div>
 
 <!-- 📞 CONTACT -->
 <div class="section">
 <h3>📞 Contact</h3>
 <p>Email: support@rkgames.com</p>
-<p>WhatsApp: Coming Soon</p>
 </div>
 
 <!-- FOOTER -->
 <div class="footer">
-<a href="#">Privacy Policy</a> |
-<a href="#">Terms</a> |
-<a href="#">Instagram</a> |
-<a href="#">Facebook</a>
+<a href="/privacy">Privacy Policy</a> |
+<a href="/terms">Terms</a> |
+<a href="https://instagram.com" target="_blank">Instagram</a> |
+<a href="https://facebook.com" target="_blank">Facebook</a>
+
 <br><br>
 © 2026 RK Games
 </div>
 
 <script>
 function startAd(sec){
+
+    let btns = document.querySelectorAll("button");
+    btns.forEach(b => b.disabled = true);
+
     fetch("/start_ad",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({duration:sec})
     })
-    .then(()=>alert("Ad Started "+sec+" sec"))
+    .then(()=>{
+        alert("Ad Started "+sec+" sec");
+
+        setTimeout(()=>{
+            btns.forEach(b => b.disabled = false);
+        }, 5000);
+
+    });
 }
 </script>
 
