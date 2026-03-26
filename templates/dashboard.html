@@ -494,14 +494,51 @@ window.location.href="/logout"
 })
 }
 function claimToken(){
-fetch("/claim_token",{method:"POST"})
-.then(r=>r.json())
-.then(data=>{
-    if(data.status=="ok"){
-        alert("Your Token: "+data.token);
-    }
-});
+
+    let btn = document.querySelector(".claim-btn");
+    btn.disabled = true;
+    btn.innerText = "Processing...";
+
+    fetch("/claim_token",{
+        method:"POST",
+        credentials:"include"
+    })
+    .then(r=>r.json())
+    .then(data=>{
+
+        btn.disabled = false;
+        btn.innerText = "🎁 Claim Reward Token";
+
+        if(data.status=="ok"){
+            alert("🎉 Your Token: " + data.token);
+            location.reload();
+        }
+        else if(data.status=="no_token"){
+            alert("❌ No token available");
+        }
+        else if(data.status=="expired"){
+            alert("⚠ Token expired, points reset!");
+            location.reload();
+        }
+        else if(data.status=="login_required"){
+            alert("🔒 Please login again");
+            window.location.href="/login";
+        }
+        else{
+            alert("⚠ Something went wrong");
+        }
+
+    })
+    .catch(err=>{
+        btn.disabled = false;
+        btn.innerText = "🎁 Claim Reward Token";
+        console.log(err);
+        alert("Server error ❌");
+    });
 }
+
+
+// 🔥 heartbeat same as before (no change)
 setInterval(()=>{
     fetch("/api/heartbeat",{
         method:"POST",
