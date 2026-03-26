@@ -1623,21 +1623,27 @@ def update_points(pid, add):
     conn = get_db()
     c = conn.cursor()
 
-    c.execute("SELECT points, spin_token FROM users WHERE player_id=%s",(pid,))
+    c.execute("SELECT points FROM users WHERE player_id=%s",(pid,))
     p = c.fetchone()
 
     current_points = p[0]
-    token = p[1]
     new_points = current_points + add
 
-    # 🎯 token create
-    if new_points >= 10000 and token == 0:
+    # 🧠 block system (हर 10000 पर)
+    current_block = current_points // 10000
+    new_block = new_points // 10000
+
+    # 🎯 NEW TOKEN GENERATE (हर 10000 cross पर)
+    if new_block > current_block:
+
         import secrets, string
 
         chars = string.ascii_uppercase + string.digits
         raw = ''.join(secrets.choice(chars) for _ in range(12))
 
         token_id = f"RK-{raw[0:4]}-{raw[4:8]}-{raw[8:12]}"
+
+        # ⏳ expiry 11000 तक valid रहेगा
         expiry = time.time() + (60*60*24*21)
 
         c.execute("""
@@ -1645,19 +1651,19 @@ def update_points(pid, add):
         SET spin_token=1, token_id=%s, token_expiry=%s
         WHERE player_id=%s
         """,(token_id,expiry,pid))
-        token = 1
 
-    # ❌ dilute
-    if new_points >= 11000 and token == 1:
+    # ❌ UNCLAIMED TOKEN EXPIRE (11000 cross)
+    if (new_points % 10000) >= 1000:
         c.execute("""
-        UPDATE users SET spin_token=0, token_id=NULL
+        UPDATE users 
+        SET spin_token=0, token_id=NULL
         WHERE player_id=%s
         """,(pid,))
 
-    # ✅ FIXED LINE
+    # ✅ UPDATE POINTS
     c.execute("UPDATE users SET points=%s WHERE player_id=%s",(new_points,pid))
 
-    # ✅ history
+    # 📝 HISTORY
     c.execute("""
     INSERT INTO points_history (player_id, points, reason, created_at)
     VALUES (%s,%s,%s,%s)
