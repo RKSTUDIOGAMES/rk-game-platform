@@ -162,7 +162,41 @@ Current Video ID: <b>{{video_id}}</b>
 <h3>Search Player</h3>
 <form method="post" action="/search_player">
 <input name="search_id" placeholder="RK1234">
-<button type="submit">Search</button>
+<button type="submit">Search</button>@app.route("/admin/update_points", methods=["POST"])
+@admin_required
+def admin_update_points():
+
+    pid = request.form["pid"]
+    pts = int(request.form["points"])
+    action = request.form["action"]
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # current points
+    c.execute("SELECT points FROM users WHERE player_id=%s",(pid,))
+    current = c.fetchone()[0]
+
+    if action == "add":
+        new_points = current + pts
+        reason = "admin_add"
+    else:
+        new_points = max(0, current - pts)
+        reason = "admin_remove"
+
+    # update
+    c.execute("UPDATE users SET points=%s WHERE player_id=%s",(new_points,pid))
+
+    # history save
+    c.execute("""
+    INSERT INTO points_history (player_id, points, reason, created_at)
+    VALUES (%s,%s,%s,%s)
+    """,(pid, pts, reason, time.time()))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/admin/player/{pid}")
 </form>
 </div>
 <div class="card">
@@ -199,7 +233,11 @@ Current Video ID: <b>{{video_id}}</b>
 
 <td>{{u[0]}}</td>
 <td>{{u[1]}}</td>
-<td>{{u[2]}}</td>
+<td>
+<a href="/admin/player/{{user[4]}}" style="color:#00ffc3;">
+    {{user[2]}}
+</a>
+</td>
 <td>{{u[4]}}</td>
 <td>{{u[5]}}</td>
 
