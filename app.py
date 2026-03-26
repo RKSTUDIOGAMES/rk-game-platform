@@ -1383,7 +1383,7 @@ def watch_ad():
     """, (pid, duration, now))
 
     # 🎯 POINTS
-    points = 50 if duration == 30 else 120
+    points = 8 if duration == 30 else 20
     update_points(pid, points)
 
     conn.commit()
