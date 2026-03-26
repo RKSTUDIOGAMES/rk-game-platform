@@ -300,7 +300,14 @@ Player ID: <b>{{player_id}}</b>
 <button class="main-btn" onclick="startAd(60)">
 💰 Earn +120 Points (60s)
 </button>
+<div class="card">
+    <h3>🎯 Ad Progress</h3>
 
+    <p id="ad30">30 sec ads: 0 / 6</p>
+    <p id="ad60">60 sec ads: 0 / 6</p>
+
+    <p id="timer" style="color:#ffaa00;"></p>
+</div>
 {% if points >= 10000 %}
 <button class="claim-btn" onclick="claimToken()">
 🎁 Claim Reward Token
@@ -468,6 +475,49 @@ setInterval(()=>{
         credentials:"include"
     });
 }, 5000);
+function updateAdStatus(){
+
+    fetch("/api/ad_status")
+    .then(res => res.json())
+    .then(data => {
+
+        // count update
+        document.getElementById("ad30").innerText =
+            "30 sec ads: " + data.count30 + " / 6";
+
+        document.getElementById("ad60").innerText =
+            "60 sec ads: " + data.count60 + " / 6";
+
+        // ⏳ TIMER
+        if(data.last_watch){
+
+            let now = Date.now() / 1000;
+            let remaining = 86400 - (now - data.last_watch);
+
+            if(remaining > 0){
+
+                let h = Math.floor(remaining / 3600);
+                let m = Math.floor((remaining % 3600) / 60);
+
+                document.getElementById("timer").innerText =
+                    "Next reset in: " + h + "h " + m + "m";
+
+            }else{
+                document.getElementById("timer").innerText =
+                    "Ads reset available ✅";
+            }
+
+        }
+
+    })
+    .catch(err => console.log(err));
+}
+
+// 🔥 auto update every 5 sec
+setInterval(updateAdStatus, 5000);
+
+// page load pe bhi run
+updateAdStatus();
 </script>
 
 <!-- POPUP AD -->
