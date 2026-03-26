@@ -323,7 +323,7 @@ def init_db():
     )
     """)
 
-    # 🔥 NEW TABLE (POINT HISTORY) — ONLY ADD KIYA HAI
+    # 🔥 POINT HISTORY TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS points_history (
         id SERIAL PRIMARY KEY,
@@ -331,6 +331,16 @@ def init_db():
         points INTEGER,
         reason TEXT,
         created_at DOUBLE PRECISION
+    )
+    """)
+
+    # 🔥 NEW TABLE (ANTI-CHEAT ADS)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS ad_watch (
+        id SERIAL PRIMARY KEY,
+        player_id TEXT,
+        ad_type INTEGER,
+        watched_at DOUBLE PRECISION
     )
     """)
 
@@ -1087,6 +1097,7 @@ def admin_delete_user(user_id):
     c = conn.cursor()
 
     # ❌ user delete from database
+    c.execute("DELETE FROM points_history WHERE player_id IN (SELECT player_id FROM users WHERE id=%s)", (user_id,))
     c.execute("DELETE FROM users WHERE id=%s", (user_id,))
     conn.commit()
     conn.close()
@@ -1209,19 +1220,106 @@ def watch_ad():
     if not ad:
         return jsonify({"status":"invalid"})
 
-    watched = time.time() - ad["start"]
+    duration = ad["duration"]  # 30 or 60
+    now = time.time()
 
-    if watched < ad["duration"] - 3:
+    conn = get_db()
+    c = conn.cursor()
+
+    # 🔥 COUNT LAST 24 HOURS
+    c.execute("""
+        SELECT COUNT(*) FROM ad_watch
+        WHERE player_id=%s AND ad_type=%s AND watched_at > %s
+    """, (pid, duration, now - 86400))
+
+    count = c.fetchone()[0]
+
+    # ❌ LIMIT CHECK
+    if count >= 6:
+        conn.close()
+        return jsonify({
+            "status": "limit_reached",
+            "msg": "24 घंटे का limit पूरा हो गया"
+        })
+
+    # ⏱️ WATCH CHECK
+    watched = now - ad["start"]
+    if watched < duration - 3:
+        conn.close()
         return jsonify({"status":"cheat"})
 
-    # 🎯 points
-    points = 50 if ad["duration"] == 30 else 120
+    # ✅ SAVE ENTRY (PERMANENT)
+    c.execute("""
+        INSERT INTO ad_watch (player_id, ad_type, watched_at)
+        VALUES (%s,%s,%s)
+    """, (pid, duration, now))
 
+    # 🎯 POINTS
+    points = 50 if duration == 30 else 120
     update_points(pid, points)
+
+    conn.commit()
+    conn.close()
 
     ad_sessions.pop(pid)
 
     return jsonify({"status":"ok","points":points})
+@app.route("/admin/clean_ads")
+@admin_required
+def clean_ads():
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # 2 din purana data delete
+    c.execute("""
+        DELETE FROM ad_watch WHERE watched_at < %s
+    """, (time.time() - (86400 * 2),))
+
+    conn.commit()
+    conn.close()
+
+    return "Old ad data cleaned ✅"
+@app.route("/api/ad_status")
+def ad_status():
+
+    if "player_id" not in session:
+        return jsonify({"status":"error"})
+
+    pid = session["player_id"]
+    now = time.time()
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # 🔥 30 sec count
+    c.execute("""
+        SELECT COUNT(*) FROM ad_watch
+        WHERE player_id=%s AND ad_type=30 AND watched_at > %s
+    """, (pid, now - 86400))
+    count30 = c.fetchone()[0]
+
+    # 🔥 60 sec count
+    c.execute("""
+        SELECT COUNT(*) FROM ad_watch
+        WHERE player_id=%s AND ad_type=60 AND watched_at > %s
+    """, (pid, now - 86400))
+    count60 = c.fetchone()[0]
+
+    # 🔥 last watch time (timer ke liye)
+    c.execute("""
+        SELECT MAX(watched_at) FROM ad_watch
+        WHERE player_id=%s
+    """, (pid,))
+    last = c.fetchone()[0]
+
+    conn.close()
+
+    return jsonify({
+        "count30": count30,
+        "count60": count60,
+        "last_watch": last
+    })
 @app.route("/use_token", methods=["POST"])
 @admin_required
 def use_token():
@@ -1354,12 +1452,12 @@ def update_points(pid, add):
     c.execute("SELECT points, spin_token FROM users WHERE player_id=%s",(pid,))
     p = c.fetchone()
 
-    points = p[0] + add
+    current_points = p[0]
     token = p[1]
+    new_points = current_points + add
 
     # 🎯 token create
-    if points >= 10000 and token == 0:
-        token = 1
+    if new_points >= 10000 and token == 0:
         token_id = str(random.randint(100000,999999))
         expiry = time.time() + (60*60*24*21)
 
@@ -1368,9 +1466,10 @@ def update_points(pid, add):
         SET spin_token=1, token_id=%s, token_expiry=%s
         WHERE player_id=%s
         """,(token_id,expiry,pid))
+        token = 1
 
     # ❌ dilute
-    if points >= 10100 and token == 1:
+    if new_points >= 10100 and token == 1:
         c.execute("""
         UPDATE users SET spin_token=0, token_id=NULL
         WHERE player_id=%s
