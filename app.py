@@ -323,6 +323,17 @@ def init_db():
     )
     """)
 
+    # 🔥 NEW TABLE (POINT HISTORY) — ONLY ADD KIYA HAI
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS points_history (
+        id SERIAL PRIMARY KEY,
+        player_id TEXT,
+        points INTEGER,
+        reason TEXT,
+        created_at DOUBLE PRECISION
+    )
+    """)
+
     # ✅ DEFAULT ROW
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
@@ -1271,6 +1282,64 @@ def claim_token():
     conn.close()
 
     return jsonify({"status":"ok","token":u[1]})
+@app.route("/admin/player/<player_id>")
+@admin_required
+def admin_player(player_id):
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # user data
+    c.execute("SELECT name,email,points FROM users WHERE player_id=%s",(player_id,))
+    user = c.fetchone()
+
+    # history
+    c.execute("""
+    SELECT points,reason,created_at 
+    FROM points_history 
+    WHERE player_id=%s 
+    ORDER BY id DESC LIMIT 50
+    """,(player_id,))
+    history = c.fetchall()
+
+    conn.close()
+
+    return render_template("admin_player.html", user=user, history=history, pid=player_id)
+@app.route("/admin/update_points", methods=["POST"])
+@admin_required
+def admin_update_points():
+
+    pid = request.form["pid"]
+    pts = int(request.form["points"])
+    action = request.form["action"]
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # current points
+    c.execute("SELECT points FROM users WHERE player_id=%s",(pid,))
+    current = c.fetchone()[0]
+
+    if action == "add":
+        new_points = current + pts
+        reason = "admin_add"
+    else:
+        new_points = max(0, current - pts)
+        reason = "admin_remove"
+
+    # update
+    c.execute("UPDATE users SET points=%s WHERE player_id=%s",(new_points,pid))
+
+    # history save
+    c.execute("""
+    INSERT INTO points_history (player_id, points, reason, created_at)
+    VALUES (%s,%s,%s,%s)
+    """,(pid, pts, reason, time.time()))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/admin/player/{pid}")
 @app.route("/admin_logout")
 @admin_required
 def admin_logout():
@@ -1308,6 +1377,10 @@ def update_points(pid, add):
         """,(pid,))
 
     c.execute("UPDATE users SET points=%s WHERE player_id=%s",(points,pid))
+    c.execute("""
+    INSERT INTO points_history (player_id, points, reason, created_at)
+    VALUES (%s,%s,%s,%s)
+    """,(pid, add, "ad_reward", time.time()))
 
     conn.commit()
     conn.close()
