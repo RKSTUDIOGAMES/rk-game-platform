@@ -351,9 +351,9 @@ Player ID: <b>{{player_id}}</b>
 <div class="warning-box">
     🚨 Danger! Claim NOW before {{danger_limit}}
 </div>
-{% elif points >= 10000 %}
+{% if remaining_target <= 168 and tokens_left > 0 %}
 <div class="warning-box" style="color:#ffaa00;border-color:#ffaa00;">
-    ⚠ Token available – claim soon
+    ⚠ Almost there! Claim fast!
 </div>
 {% endif %}
 {% if points >= target and tokens_left > 0 %}
