@@ -1514,14 +1514,16 @@ def claim_token():
 
     u = c.fetchone()
 
+    # ❌ no token
     if not u or u[0] != 1 or not u[1]:
         conn.close()
         return jsonify({"status":"no_token"})
 
-    # expiry check
+    # ⏳ expiry check
     if u[2] and time.time() > u[2]:
         c.execute("""
-        UPDATE users SET points=0, spin_token=0, token_id=0
+        UPDATE users 
+        SET points=0, spin_token=0, token_id=NULL
         WHERE player_id=%s
         """,(pid,))
         conn.commit()
@@ -1530,10 +1532,10 @@ def claim_token():
 
     token = u[1]
 
-    # reset points
+    # ✅ claim → reset everything properly
     c.execute("""
     UPDATE users 
-    SET points=0, spin_token=0
+    SET points=0, spin_token=0, token_id=NULL
     WHERE player_id=%s
     """,(pid,))
 
