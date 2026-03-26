@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hall of Fame</title>
+
+<style>
+body{
+    background:black;
+    color:white;
+    text-align:center;
+}
+
+.card{
+    display:inline-block;
+    margin:20px;
+    padding:20px;
+    border:1px solid cyan;
+    border-radius:10px;
+}
+
+img{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🏆 Hall of Fame</h2>
+
+{% for u in data %}
+<div class="card">
+
+<img src="https://yt3.googleusercontent.com/ytc/{{u[1]}}" 
+     onerror="this.src='https://i.imgur.com/6VBx3io.png'">
+
+<br><br>
+<b>{{u[0]}}</b><br>
+{{u[1]}}<br>
+{{u[2]}} pts
+
+</div>
+{% endfor %}
+
+<br>
+<a href="/dashboard">Back</a>
+
+</body>
+</html>
