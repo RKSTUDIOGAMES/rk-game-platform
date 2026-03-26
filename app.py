@@ -672,7 +672,9 @@ def dashboard():
     conn = get_db()
     c = conn.cursor()
     pid = session["player_id"]
+
     check_cycle()
+
     # 🔥 BLOCK CHECK
     c.execute(
         "SELECT blocked FROM users WHERE player_id=%s",
@@ -710,13 +712,33 @@ def dashboard():
     if remaining < 0:
         remaining = 0
 
-    # 🆕 🔥 GAME STATE (NEW SYSTEM ADD)
-    c.execute("SELECT current_target, tokens_given FROM game_state WHERE id=1")
+    # 🆕 🔥 GAME STATE (FIXED)
+    c.execute("""
+        SELECT m1_claimed, m2_claimed, m3_claimed 
+        FROM game_state 
+        WHERE id=1
+    """)
     g = c.fetchone()
 
-    target = g[0] if g else 168
-    tokens_left = 3 - g[1] if g else 3
+    if g:
+        m1, m2, m3 = g
+    else:
+        m1, m2, m3 = 0, 0, 0
 
+    # 🔥 TOKENS LEFT (3 total)
+    tokens_left = 3 - (m1 + m2 + m3)
+
+    # 🔥 CURRENT TARGET (NEXT MILESTONE)
+    if m1 == 0:
+        target = 168
+    elif m2 == 0:
+        target = 504
+    elif m3 == 0:
+        target = 1008
+    else:
+        target = 1008  # all claimed
+
+    # 🎯 REMAINING TARGET
     remaining_target = target - points
     if remaining_target < 0:
         remaining_target = 0
@@ -734,14 +756,14 @@ def dashboard():
         "dashboard.html",
         name=session["name"],
         player_id=pid,
-        video_id=video[0],
+        video_id=video[0] if video else "",
         controller_enable=controller_enable,
         points=points,
-        remaining=remaining,                 # OLD (safe)
+        remaining=remaining,
         rank=rank,
         danger_limit=11000,
 
-        # 🆕 NEW VARIABLES (UI ke liye)
+        # 🆕 UI VARIABLES
         target=target,
         tokens_left=tokens_left,
         remaining_target=remaining_target
