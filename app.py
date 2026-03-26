@@ -240,6 +240,19 @@ def init_db():
     conn = get_db()
     c = conn.cursor()
 
+    # 🔥 ANNOUNCEMENT TABLE (ADDED)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS announcement (
+        id SERIAL PRIMARY KEY,
+        message TEXT
+    )
+    """)
+
+    # default message
+    c.execute("SELECT * FROM announcement")
+    if not c.fetchone():
+        c.execute("INSERT INTO announcement (message) VALUES (%s)", ("Welcome to RK Games 🎮",))
+
     # ✅ USERS TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
@@ -343,6 +356,7 @@ def init_db():
         watched_at DOUBLE PRECISION
     )
     """)
+
     # 🔥 HALL OF FAME TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS hall_of_fame (
@@ -351,6 +365,7 @@ def init_db():
         added_at DOUBLE PRECISION
     )
     """)
+
     # ✅ DEFAULT ROW
     c.execute("SELECT * FROM live_stream")
     if not c.fetchone():
@@ -379,7 +394,9 @@ def check_player_id():
 
 @app.route("/")
 def home():
-    return redirect("/login")
+    if "player_id" in session:
+        return redirect("/dashboard")
+    return redirect("/home")
 @app.route("/signup", methods=["GET","POST"])
 def signup():
 
@@ -697,7 +714,44 @@ def logout():
 
     session.clear()
     return redirect("/login")
-  
+@app.route("/home")
+def home_page():
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # 🔥 announcement
+    c.execute("SELECT message FROM announcement LIMIT 1")
+    ann = c.fetchone()
+
+    # 🔥 leaderboard
+    c.execute("""
+    SELECT name, player_id, points 
+    FROM users 
+    ORDER BY points DESC 
+    LIMIT 10
+    """)
+    top = c.fetchall()
+
+    # 🔥 hall of fame
+    c.execute("""
+    SELECT u.name, u.player_id, u.points
+    FROM hall_of_fame h
+    JOIN users u ON h.player_id = u.player_id
+    ORDER BY h.id DESC 
+    LIMIT 10
+    """)
+    hof = c.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "home.html",
+        announcement = ann[0] if ann and ann[0] else "Welcome to RK Games 🎮",
+        top = top if top else [],
+        hof = hof if hof else [],
+        logged_in = ("player_id" in session)
+    )  
 @app.route("/admin", methods=["GET","POST"])
 @admin_required
 def admin():
