@@ -177,7 +177,25 @@ Current Video ID: <b>{{video_id}}</b>
 <button name="reset" value="1" class="danger">Reset All Players</button>
 </form>
 </div>
+<div class="card">
+<h3>📢 Announcement Editor</h3>
 
+<form method="post">
+
+<textarea name="announcement" 
+style="width:100%;height:100px;padding:12px;border-radius:10px;background:#111;color:#00ffc3;border:1px solid #00ffc3;">
+{{announcement}}
+</textarea>
+
+<button type="submit">Update Announcement</button>
+
+</form>
+
+<br>
+Current:
+<div style="color:#00ffc3;">{{announcement}}</div>
+
+</div>
 <div class="card">
 <table>
 
