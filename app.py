@@ -644,7 +644,7 @@ def dashboard():
     conn = get_db()
     c = conn.cursor()
     pid = session["player_id"]
-
+    check_cycle()
     # 🔥 BLOCK CHECK
     c.execute(
         "SELECT blocked FROM users WHERE player_id=%s",
@@ -1566,7 +1566,9 @@ def claim_token():
 
     # global state
     c.execute("SELECT current_target, tokens_given FROM game_state WHERE id=1")
-    target, tokens = c.fetchone()
+    row = c.fetchone()
+    target = row[0] if row else 168
+    tokens = row[1] if row else 0
 
     # user points
     c.execute("SELECT points FROM users WHERE player_id=%s", (pid,))
