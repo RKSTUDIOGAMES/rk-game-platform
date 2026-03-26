@@ -357,15 +357,7 @@ Player ID: <b>{{player_id}}</b>
 
     <p id="timer" style="color:#ffaa00;"></p>
 </div>
-{% if tokens_left == 1 %}
-<div class="warning-box">
-    🚨 LAST TOKEN LEFT – HURRY!
-</div>
-{% elif tokens_left == 0 %}
-<div class="warning-box">
-    ❌ ALL TOKENS CLAIMED
-</div>
-{% endif %}
+
 
 {% if points >= 10500 and points < 11000 %}
 <div class="warning-box">
