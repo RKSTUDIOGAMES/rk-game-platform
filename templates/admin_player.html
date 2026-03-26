@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Player Manager</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#111;
+    color:white;
+    text-align:center;
+}
+
+.box{
+    width:90%;
+    max-width:800px;
+    margin:20px auto;
+    padding:20px;
+    border:1px solid #00ffc3;
+    border-radius:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td,th{
+    padding:10px;
+    border-bottom:1px solid #333;
+}
+
+button{
+    padding:10px;
+    margin:5px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Player Manager</h2>
+
+<div class="box">
+<h3>{{user[0]}}</h3>
+<p>Email: {{user[1]}}</p>
+<p>Points: <b>{{user[2]}}</b></p>
+
+<form method="POST" action="/admin/update_points">
+<input type="hidden" name="pid" value="{{pid}}">
+
+<input type="number" name="points" placeholder="Enter points" required>
+
+<select name="action">
+<option value="add">Add</option>
+<option value="remove">Remove</option>
+</select>
+
+<button type="submit">Update</button>
+</form>
+</div>
+
+<div class="box">
+<h3>📜 Points History</h3>
+
+<table>
+<tr>
+<th>Points</th>
+<th>Reason</th>
+<th>Time</th>
+</tr>
+
+{% for h in history %}
+<tr>
+<td>{{h[0]}}</td>
+<td>{{h[1]}}</td>
+<td>{{h[2]|int}}</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+<a href="/admin">⬅ Back</a>
+
+</body>
+</html>
