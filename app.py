@@ -930,6 +930,19 @@ def admin():
         if "announcement" in request.form:
             msg = request.form["announcement"]
             c.execute("UPDATE announcement SET message=%s WHERE id=1", (msg,))
+
+        if "power_image" in request.form:
+            img = request.form["power_image"]
+
+            c.execute("""
+            UPDATE power_image
+            SET image_url=%s
+            WHERE id=1
+            """, (img,))
+
+
+
+        
         if "save_tokens" in request.form:
 
             t1 = request.form["token1"]
