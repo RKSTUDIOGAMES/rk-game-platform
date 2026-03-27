@@ -895,7 +895,23 @@ def admin():
         if "announcement" in request.form:
             msg = request.form["announcement"]
             c.execute("UPDATE announcement SET message=%s WHERE id=1", (msg,))
+        # 🔥 START NEW SESSION
+        if "start_session" in request.form:
 
+            c.execute("""
+            UPDATE game_state
+            SET m1_claimed=0,
+                m2_claimed=0,
+                m3_claimed=0,
+                cycle_start=%s
+            WHERE id=1
+            """, (time.time(),))
+
+            # 🔥 reset base points
+            c.execute("""
+            UPDATE users 
+            SET base_points = points
+            """)
         conn.commit()
 
     # ✅ YAHI PE HONA CHAHIYE
