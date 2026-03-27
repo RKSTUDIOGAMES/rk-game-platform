@@ -172,6 +172,21 @@ Current Video ID: <b>{{video_id}}</b>
 <button>Use Token</button>
 </form>
 </div>
+{% if m1 == 1 and m2 == 1 and m3 == 1 %}
+<form method="POST">
+    <button name="start_session" value="1" style="
+        padding:10px 20px;
+        background:#00ffc3;
+        border:none;
+        border-radius:8px;
+        font-weight:bold;
+        cursor:pointer;
+        box-shadow:0 0 10px #00ffc3;
+    ">
+        🚀 Start New Session
+    </button>
+</form>
+{% endif %}
 <div class="card">
 <form method="post">
 <button name="reset" value="1" class="danger">Reset All Players</button>
