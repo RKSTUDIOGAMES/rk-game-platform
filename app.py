@@ -426,6 +426,19 @@ def init_db():
     if not c.fetchone():
         c.execute("INSERT INTO live_stream (video_id) VALUES (%s)", ("",))
 
+    #image
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS power_image (
+        id SERIAL PRIMARY KEY,
+        image_url TEXT
+    )
+    """)
+
+    c.execute("SELECT * FROM power_image")
+    if not c.fetchone():
+        c.execute("INSERT INTO power_image (image_url) VALUES (%s)",
+                  ("https://via.placeholder.com/400x200",))
+
     conn.commit()
     conn.close()
 @app.route("/check_player_id")
@@ -759,6 +772,14 @@ def dashboard():
     if remaining_target < 0:
         remaining_target = 0
 
+
+
+    #image
+    c.execute("SELECT image_url FROM power_image LIMIT 1")
+    img = c.fetchone()
+    power_img = img[0] if img else ""
+
+    
     # 📊 RANK
     c.execute("""
         SELECT COUNT(*) + 1 FROM users
@@ -778,7 +799,8 @@ def dashboard():
         remaining=remaining,
         rank=rank,
         danger_limit=11000,
-
+        power_img=power_img,
+  
         # 🆕 UI VARIABLES
         target=target,
         tokens_left=tokens_left,
