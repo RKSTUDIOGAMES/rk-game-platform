@@ -270,6 +270,23 @@ iframe{
     border:2px solid #00ffc3;
     box-shadow:0 0 20px rgba(0,255,200,0.4);
 }
+.footer-ad{
+    width:92%;
+    max-width:800px;
+    margin:40px auto;
+    padding:20px;
+    text-align:center;
+    border:2px dashed #00ffc3;
+    border-radius:12px;
+    background:rgba(0,255,200,0.05);
+    box-shadow:0 0 15px rgba(0,255,200,0.3);
+}
+
+.footer-ad img{
+    width:100%;
+    max-width:500px;
+    border-radius:10px;
+}
 </style>
 </head>
 
@@ -404,6 +421,24 @@ Player ID: <b>{{player_id}}</b>
 <a href="/logout" onclick="logoutWithAd(event)">Logout</a>
 </div>
 
+
+<div class="footer-ad">
+
+    <h3>🔥 Sponsored</h3>
+
+    <!-- OPTION 1: IMAGE AD -->
+    <a href="https://your-link.com" target="_blank">
+        <img src="https://via.placeholder.com/500x200?text=Your+Ad+Here"
+             onerror="this.style.display='none'">
+    </a>
+
+    <p style="color:#aaa;font-size:12px;margin-top:10px;">
+        Advertisement
+    </p>
+
+</div>
+
+    
 <script>
 let adStart = 0;
 let adInterval;
