@@ -172,6 +172,15 @@ Current Video ID: <b>{{video_id}}</b>
 <button>Use Token</button>
 </form>
 </div>
+<form method="POST">
+    <input type="text" name="token1" placeholder="L1 Token (168)" required>
+    <input type="text" name="token2" placeholder="L2 Token (504)" required>
+    <input type="text" name="token3" placeholder="L3 Token (1008)" required>
+
+    <button name="save_tokens" value="1">
+        💾 Save Tokens
+    </button>
+</form>
 {% if m1 == 1 and m2 == 1 and m3 == 1 %}
 <form method="POST">
     <button name="start_session" value="1" style="
