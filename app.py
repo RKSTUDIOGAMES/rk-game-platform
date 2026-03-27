@@ -304,7 +304,20 @@ def init_db():
     ALTER TABLE users 
     ADD COLUMN IF NOT EXISTS last_active DOUBLE PRECISION DEFAULT 0
     """)
+    c.execute("""
+    ALTER TABLE game_state
+    ADD COLUMN IF NOT EXISTS token1 TEXT
+    """)
 
+    c.execute("""
+    ALTER TABLE game_state
+    ADD COLUMN IF NOT EXISTS token2 TEXT
+    """)
+
+    c.execute("""
+    ALTER TABLE game_state
+    ADD COLUMN IF NOT EXISTS token3 TEXT
+    """)
     # ✅ LIVE STREAM TABLE
     c.execute("""
     CREATE TABLE IF NOT EXISTS live_stream (
