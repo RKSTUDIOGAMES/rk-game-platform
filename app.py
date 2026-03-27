@@ -1151,16 +1151,30 @@ def get_players():
 
 
 # 🔥 REMOVE PLAYER
+# 🔐 GAME API KEY VERIFY FUNCTION
+def verify_game_request(req):
+    api_key = req.headers.get("X-API-KEY")
+    return api_key == os.getenv("GAME_API_KEY")
+
+
 @app.route("/remove_player", methods=["POST"])
 def remove_player():
 
-    if "player_id" not in session:
-        return jsonify({"status":"error"}), 401
+    # 🔥 UNITY / GAME AUTH CHECK (NO SESSION)
+    if not verify_game_request(request):
+        return jsonify({"status": "unauthorized"}), 401
 
-    user_id = session["player_id"].lower()
+    data = request.get_json()
+
+    if not data or "channelId" not in data:
+        return jsonify({"status": "bad_request"}), 400
+
+    user_id = data["channelId"].lower()
 
     global players
     players = [p for p in players if p["channelId"] != user_id]
+
+    print("🗑 REMOVED FROM GAME:", user_id)
 
     return jsonify({"status": "removed"})
 @app.route("/get_power")
