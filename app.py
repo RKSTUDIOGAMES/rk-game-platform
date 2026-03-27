@@ -939,14 +939,22 @@ def admin():
     c.execute("SELECT message FROM announcement LIMIT 1")
     ann = c.fetchone()
 
-    conn.close()
 
+    c.execute("SELECT m1_claimed, m2_claimed, m3_claimed FROM game_state WHERE id=1")
+m1, m2, m3 = c.fetchone()
+
+    conn.close()
+    
     return render_template(
         "admin.html",
         users=users,
         video_id=video[0],
         time=time,
         announcement=ann[0] if ann else ""
+        m1=m1,
+        m2=m2,
+        m3=m3,
+    
     )
 
 @app.route("/search_player", methods=["POST"])
