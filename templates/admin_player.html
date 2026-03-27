@@ -75,7 +75,7 @@ button{
 <tr>
 <td>{{h[0]}}</td>
 <td>{{h[1]}}</td>
-<td>{{h[2]|int}}</td>
+<td class="time" data-time="{{h[2]}}"></td>
 </tr>
 {% endfor %}
 
@@ -83,6 +83,23 @@ button{
 </div>
 
 <a href="/admin">⬅ Back</a>
+<script>
+function formatTime(ts){
+    let date = new Date(ts * 1000);
 
+    return date.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+document.querySelectorAll(".time").forEach(el=>{
+    let ts = el.getAttribute("data-time");
+    el.innerText = formatTime(ts);
+});
+</script>
 </body>
 </html>
