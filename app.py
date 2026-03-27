@@ -1548,6 +1548,8 @@ def watch_ad():
     points = 8 if duration == 30 else 20
     update_points(pid, points)
 
+    update_last_active(pid)
+
     conn.commit()
     conn.close()
 
