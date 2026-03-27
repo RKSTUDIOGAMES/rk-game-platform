@@ -908,6 +908,19 @@ def admin():
         if "announcement" in request.form:
             msg = request.form["announcement"]
             c.execute("UPDATE announcement SET message=%s WHERE id=1", (msg,))
+        if "save_tokens" in request.form:
+
+            t1 = request.form["token1"]
+            t2 = request.form["token2"]
+            t3 = request.form["token3"]
+
+            c.execute("""
+            UPDATE game_state
+            SET token1=%s,
+                token2=%s,
+                token3=%s
+            WHERE id=1
+            """, (t1, t2, t3))
         # 🔥 START NEW SESSION
         if "start_session" in request.form:
 
@@ -1674,26 +1687,32 @@ def claim_token():
     t2 = base + 504
     t3 = base + 1008
 
+       # 🔥 GET TOKENS (ADMIN SE)
+    c.execute("""
+    SELECT token1, token2, token3 
+    FROM game_state WHERE id=1
+    """)
+    tk1, tk2, tk3 = c.fetchone()
+
     # ❌ LEVEL 1
     if points >= t1 and m1 == 0:
+        token_code = tk1
         c.execute("UPDATE game_state SET m1_claimed=1 WHERE id=1")
 
     # ❌ LEVEL 2
     elif points >= t2 and m2 == 0:
+        token_code = tk2
         c.execute("UPDATE game_state SET m2_claimed=1 WHERE id=1")
 
     # ❌ LEVEL 3
     elif points >= t3 and m3 == 0:
+        token_code = tk3
         c.execute("UPDATE game_state SET m3_claimed=1 WHERE id=1")
 
     else:
         conn.close()
         return jsonify({"status":"not_reached"})
-
-    # ✅ WIN
-    token_code = "WIN-" + str(random.randint(10000,99999))
-
-    c.execute("UPDATE users SET points=0 WHERE player_id=%s",(pid,))
+        c.execute("UPDATE users SET points=0 WHERE player_id=%s",(pid,))
 
     conn.commit()
     conn.close()
