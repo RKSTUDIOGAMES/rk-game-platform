@@ -772,7 +772,7 @@ def dashboard():
         remaining_target=remaining_target,
         m1=m1,
         m2=m2,
-        m3=m3,
+        m3=m3
     )
 @app.route("/admin/add_hof/<player_id>")
 @admin_required
