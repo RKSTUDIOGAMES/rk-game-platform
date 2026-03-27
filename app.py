@@ -1610,41 +1610,7 @@ def ad_status():
         "count60": count60,
         "last_watch": last
     })
-@app.route("/use_token", methods=["POST"])
-@admin_required
-def use_token():
 
-    token = request.form["token"]
-
-    conn = get_db()
-    c = conn.cursor()
-
-    c.execute("""
-    SELECT player_id, token_used 
-    FROM users 
-    WHERE token_id=%s
-    """,(token,))
-    
-    user = c.fetchone()
-
-    if not user:
-        conn.close()
-        return "Invalid ❌"
-
-    if user[1] == 1:
-        conn.close()
-        return "Already Used ❌"
-
-    c.execute("""
-    UPDATE users 
-    SET token_used=1, spin_token=0, token_id=NULL
-    WHERE player_id=%s
-    """,(user[0],))
-
-    conn.commit()
-    conn.close()
-
-    return "Token Used ✅"
 @app.route("/leaderboard")
 def leaderboard():
 
