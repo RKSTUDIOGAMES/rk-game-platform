@@ -257,6 +257,19 @@ iframe{
     50%{ box-shadow:0 0 25px rgba(255,0,0,0.8); }
     100%{ box-shadow:0 0 10px rgba(255,0,0,0.3); }
 }
+
+.power-image-box{
+    text-align:center;
+    margin:20px auto;
+}
+
+.power-image-box img{
+    width:90%;
+    max-width:400px;
+    border-radius:12px;
+    border:2px solid #00ffc3;
+    box-shadow:0 0 20px rgba(0,255,200,0.4);
+}
 </style>
 </head>
 
@@ -342,7 +355,8 @@ Player ID: <b>{{player_id}}</b>
 <div id="delayTimer"></div>
 <button class="main-btn" onclick="addBall()">⚡ ADD BALL</button>
 <div class="power-image-box">
-    <img src="{{power_img}}">
+    <img src="{{power_img}}" onerror="this.style.display='none'">
+    
 </div>
 <button class="main-btn" onclick="startAd(30)">
 💰 Earn +8 Points (30s)
