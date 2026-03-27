@@ -84,6 +84,10 @@ button{
 
 <a href="/admin">⬅ Back</a>
 <script>
+setInterval(() => {
+    location.reload();  // 🔥 full refresh
+}, 10000); // 10 sec
+    
 function formatTime(ts){
     let date = new Date(ts * 1000);
 
