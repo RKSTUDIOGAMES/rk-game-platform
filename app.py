@@ -1800,7 +1800,22 @@ def admin_update_points():
 def terms():
     return render_template("terms.html")
 
+@app.route("/give_heavy_power", methods=["POST"])
+def give_heavy_power():
 
+    if "player_id" not in session:
+        return jsonify({"status": "error"}), 401
+
+    player_id = session["player_id"].lower()
+
+    power_queue.append({
+        "playerId": player_id,
+        "type": "heavy"
+    })
+
+    print("🟢 HEAVY POWER SENT:", player_id)
+
+    return jsonify({"status": "ok"})
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
