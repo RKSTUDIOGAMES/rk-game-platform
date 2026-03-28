@@ -654,7 +654,17 @@ function updateAdStatus(){
     })
     .catch(err => console.log(err));
 }
+function handleGreen(){
+    let btn = document.getElementById("greenBtn");
 
+    fetch("/give_heavy_power",{
+        method:"POST",
+        credentials:"include"
+    });
+
+    // UI cooldown (sirf look ke liye)
+    startCooldown(btn,20,"▲");
+}
 // 🔥 auto update every 5 sec
 setInterval(updateAdStatus, 5000);
 
