@@ -351,10 +351,43 @@ Player ID: <b>{{player_id}}</b>
 <div class="controller">
 
 <div class="dpad">
-<button onclick="sendMove('up')" class="btn">▲</button>
-<button onclick="sendMove('left')" class="btn">◀</button>
-<button onclick="sendMove('down')" class="btn">▼</button>
-<button onclick="sendMove('right')" class="btn">▶</button>
+
+<button 
+ontouchstart="holdMove('up')" 
+ontouchend="releaseMove()" 
+ontouchcancel="releaseMove()"
+onmousedown="holdMove('up')" 
+onmouseup="releaseMove()" 
+onmouseleave="releaseMove()"
+class="btn">▲</button>
+
+<button 
+ontouchstart="holdMove('left')" 
+ontouchend="releaseMove()" 
+ontouchcancel="releaseMove()"
+onmousedown="holdMove('left')" 
+onmouseup="releaseMove()" 
+onmouseleave="releaseMove()"
+class="btn">◀</button>
+
+<button 
+ontouchstart="holdMove('down')" 
+ontouchend="releaseMove()" 
+ontouchcancel="releaseMove()"
+onmousedown="holdMove('down')" 
+onmouseup="releaseMove()" 
+onmouseleave="releaseMove()"
+class="btn">▼</button>
+
+<button 
+ontouchstart="holdMove('right')" 
+ontouchend="releaseMove()" 
+ontouchcancel="releaseMove()"
+onmousedown="holdMove('right')" 
+onmouseup="releaseMove()" 
+onmouseleave="releaseMove()"
+class="btn">▶</button>
+
 </div>
 
 <div class="action">
