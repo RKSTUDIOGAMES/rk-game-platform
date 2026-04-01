@@ -475,7 +475,27 @@ class="btn">▶</button>
 <script>
 let adStart = 0;
 let adInterval;
+let moveInterval = null;
 
+function holdMove(dir){
+
+    // agar already chal raha hai to band karo
+    if(moveInterval) clearInterval(moveInterval);
+
+    moveInterval = setInterval(()=>{
+        sendMove(dir); // 🔥 same function
+    }, 50); // speed control
+}
+
+function releaseMove(){
+
+    if(moveInterval){
+        clearInterval(moveInterval);
+        moveInterval = null;
+    }
+
+    sendMove("stop"); // 🔥 stop signal
+}
 function startAd(duration){
 
     adStart = Date.now();
