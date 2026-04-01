@@ -351,43 +351,10 @@ Player ID: <b>{{player_id}}</b>
 <div class="controller">
 
 <div class="dpad">
-
-<button 
-ontouchstart="holdMove('up')" 
-ontouchend="releaseMove()" 
-ontouchcancel="releaseMove()"
-onmousedown="holdMove('up')" 
-onmouseup="releaseMove()" 
-onmouseleave="releaseMove()"
-class="btn">▲</button>
-
-<button 
-ontouchstart="holdMove('left')" 
-ontouchend="releaseMove()" 
-ontouchcancel="releaseMove()"
-onmousedown="holdMove('left')" 
-onmouseup="releaseMove()" 
-onmouseleave="releaseMove()"
-class="btn">◀</button>
-
-<button 
-ontouchstart="holdMove('down')" 
-ontouchend="releaseMove()" 
-ontouchcancel="releaseMove()"
-onmousedown="holdMove('down')" 
-onmouseup="releaseMove()" 
-onmouseleave="releaseMove()"
-class="btn">▼</button>
-
-<button 
-ontouchstart="holdMove('right')" 
-ontouchend="releaseMove()" 
-ontouchcancel="releaseMove()"
-onmousedown="holdMove('right')" 
-onmouseup="releaseMove()" 
-onmouseleave="releaseMove()"
-class="btn">▶</button>
-
+<button onclick="move('up')" class="btn">▲</button>
+<button onclick="move('left')" class="btn">◀</button>
+<button onclick="move('down')" class="btn">▼</button>
+<button onclick="move('right')" class="btn">▶</button>
 </div>
 
 <div class="action">
@@ -477,23 +444,32 @@ let adStart = 0;
 let adInterval;
 let moveInterval = null;
 
-function holdMove(dir){
+let lastClickTime = 0;
+let lastDir = "";
 
-    // agar already chal raha hai to band karo
-    if(moveInterval) clearInterval(moveInterval);
+function move(dir){
 
-    moveInterval = setInterval(()=>{
-        sendMove(dir); // 🔥 same function
-    }, 50); // speed control
-}
+    let now = Date.now();
 
-function releaseMove(){
+    // 🔥 DOUBLE CLICK DETECT (300ms)
+    if(dir === lastDir && (now - lastClickTime) < 300){
+        
+        sendMove("stop"); // 🔥 STOP
+        lastDir = "";
+        lastClickTime = 0;
 
-    if(moveInterval){
-        clearInterval(moveInterval);
-        moveInterval = null;
+        console.log("DOUBLE CLICK → STOP");
+        return;
     }
 
+    // 🔥 SINGLE CLICK → MOVE
+    sendMove(dir);
+
+    lastDir = dir;
+    lastClickTime = now;
+
+    console.log("MOVE: " + dir);
+}
     sendMove("stop"); // 🔥 stop signal
 }
 function startAd(duration){
