@@ -5,3 +5,5 @@ requests
 werkzeug
 psycopg2-binary
 sendgrid
+flask-socketio
+eventlet
