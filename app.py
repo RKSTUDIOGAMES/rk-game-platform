@@ -11,6 +11,7 @@ import os
 from functools import wraps
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from flask_socketio import SocketIO
 
 def send_email_otp(to_email, otp):
     html_template = f"""
@@ -186,8 +187,8 @@ otp_store ={}
 players = []
 instant_queue = []
 power_queue = []
-move_queue = []
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 app.secret_key = os.getenv("SECRET_KEY")
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -1390,23 +1391,30 @@ def move():
 
     player_id = session["player_id"].lower()
 
-    move_queue.append({
+    socketio.emit("move", {
+     "playerId": player_id,
+     "type": "move",
+     "dir": direction
+ })
+
+    return jsonify({"status": "ok"})
+
+@socketio.on("move")
+def handle_move(data):
+
+    if "player_id" not in session:
+        return
+
+    player_id = session["player_id"].lower()
+    direction = data.get("direction")
+
+    socketio.emit("move", {
         "playerId": player_id,
         "type": "move",
         "dir": direction
     })
+    
 
-    return jsonify({"status": "ok"})
-@app.route("/get_move")
-def get_move():
-
-    if len(move_queue) > 0:
-        return jsonify(move_queue.pop(0))
-
-    return jsonify({
-        "playerId": "",
-        "type": ""
-    })
 @app.route("/api/online_status")
 def online_status():
 
@@ -1870,6 +1878,6 @@ def update_points(pid, add):
     conn.commit()
     conn.close()
 init_db()
-if __name__ =="__main__":
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    socketio.run(app, host="0.0.0.0", port=port)
