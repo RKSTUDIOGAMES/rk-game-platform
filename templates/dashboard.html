@@ -451,26 +451,17 @@ function move(dir){
 
     let now = Date.now();
 
-    // 🔥 DOUBLE CLICK DETECT (300ms)
     if(dir === lastDir && (now - lastClickTime) < 300){
-        
-        sendMove("stop"); // 🔥 STOP
+        sendMove("stop");
         lastDir = "";
         lastClickTime = 0;
-
-        console.log("DOUBLE CLICK → STOP");
         return;
     }
 
-    // 🔥 SINGLE CLICK → MOVE
     sendMove(dir);
 
     lastDir = dir;
     lastClickTime = now;
-
-    console.log("MOVE: " + dir);
-}
-    sendMove("stop"); // 🔥 stop signal
 }
 function startAd(duration){
 
