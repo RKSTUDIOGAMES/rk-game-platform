@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Dashboard</title>
-
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -440,6 +440,13 @@ Player ID: <b>{{player_id}}</b>
 
     
 <script>
+const socket = io({
+    transports: ["websocket"],
+    upgrade: false
+});
+socket.on("connect", () => {
+    console.log("✅ Socket Connected:", socket.id);
+});
 let adStart = 0;
 let adInterval;
 let moveInterval = null;
@@ -538,11 +545,6 @@ btn.disabled = false;
 },1000);
 }
 
-function handleGreen(){
-let btn = document.getElementById("greenBtn");
-fetch("/sendCmd",{method:"POST",credentials:"include"});
-startCooldown(btn,20,"▲");
-}
 
 function handleRed(){
 let btn = document.getElementById("redBtn");
@@ -567,12 +569,7 @@ fetch("/add_player",{method:"POST",credentials:"include"});
 }
 
 function sendMove(dir){
-fetch("/move",{
-method:"POST",
-credentials:"include",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({direction:dir})
-})
+    socket.emit("move", { direction: dir });
 }
 
 // 🔥 AD POPUP
@@ -636,7 +633,7 @@ setInterval(()=>{
         method:"POST",
         credentials:"include"
     });
-}, 5000);
+}, 15000);
 function updateAdStatus(){
 
     fetch("/api/ad_status")
@@ -686,7 +683,7 @@ function handleGreen(){
     startCooldown(btn,20,"▲");
 }
 // 🔥 auto update every 5 sec
-setInterval(updateAdStatus, 5000);
+setInterval(updateAdStatus, 15000);
 
 // page load pe bhi run
 updateAdStatus();
