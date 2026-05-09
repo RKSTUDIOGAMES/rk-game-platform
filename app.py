@@ -169,10 +169,7 @@ def update_last_active(user_id):
     conn.close()
 
 def get_db():
-    return psycopg2.connect(
-        os.getenv("DATABASE_URL"),
-        sslmode="require"
-    )
+    return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 def admin_required(f):
     @wraps(f)
@@ -325,7 +322,15 @@ def init_db():
         created_at DOUBLE PRECISION
     )
     """)
-
+    # 🔥 IMPORTANT: FIRST CREATE game_state
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS game_state (
+        id SERIAL PRIMARY KEY,
+        current_target INTEGER,
+        tokens_given INTEGER,
+        cycle_start DOUBLE PRECISION
+    )
+    """)
     c.execute("""
     ALTER TABLE game_state
     ADD COLUMN IF NOT EXISTS token1 TEXT
