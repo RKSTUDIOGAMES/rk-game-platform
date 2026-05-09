@@ -323,7 +323,7 @@ def init_db():
     )
     """)
 
-     c.execute("""
+    c.execute("""
     ALTER TABLE game_state
     ADD COLUMN IF NOT EXISTS token1 TEXT
     """)
