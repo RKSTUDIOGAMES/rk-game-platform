@@ -169,7 +169,10 @@ def update_last_active(user_id):
     conn.close()
 
 def get_db():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+    return psycopg2.connect(
+        os.getenv("DATABASE_URL"),
+        sslmode="require"
+    )
 
 def admin_required(f):
     @wraps(f)
